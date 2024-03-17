@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin, GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
 
 const SignUp: React.FC = () => {
@@ -97,9 +97,14 @@ const SignUp: React.FC = () => {
             </button>
           </div>
           <div className="mt-4 text-center">
-            <p className="text-gray-600 mb-2">Already have an account? Log in</p>
+            <p className="text-gray-600 mb-2">
+                    Already have an account?{' '}
+                <Link to="/login" className="text-blue-500 hover:text-blue-700 font-bold">
+                    Log in
+                </Link>
+            </p>
             <div className="border-t border-gray-300 pt-4">
-              <p className="text-gray-600 mb-2">OR</p>
+              <p className="text-gray-600 mb-2">or</p>
               <GoogleLogin
                 clientId="YOUR_ACTUAL_GOOGLE_CLIENT_ID"
                 buttonText="Sign up with Google"
