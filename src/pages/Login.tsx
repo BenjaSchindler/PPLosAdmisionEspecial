@@ -1,19 +1,32 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin, GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
-
+import axios from 'axios';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Perform login logic here, e.g., send request to server, validate credentials, etc.
-    console.log('Login submitted:', email, password);
-    // Navigate to home page or dashboard upon successful login
-    navigate('/');
+
+    try {
+      const response = await axios.post('http://localhost:5000/Login', {
+        email,
+        password,
+      });
+
+      if (response.data.message === 'Login successful') {
+        // Navigate to home page or dashboard upon successful login
+        navigate('/');
+      } else {
+        // Handle login error
+        console.error('Login failed');
+      }
+    } catch (error) {
+      console.error('Error logging in:', error);
+    }
   };
   const handleGoogleSuccess = (response: GoogleLoginResponse | GoogleLoginResponseOffline) => {
     if ('profileObj' in response) {

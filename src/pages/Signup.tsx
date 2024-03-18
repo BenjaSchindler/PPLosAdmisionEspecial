@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin, GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
+import axios, { AxiosError } from 'axios';
+
+interface ErrorResponse {
+  error: string;
+}
 
 const SignUp: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [registrationError, setRegistrationError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,16 +23,39 @@ const SignUp: React.FC = () => {
     }
   }, [password, confirmPassword]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (passwordError) {
-      return;
+
+    try {
+      const response = await axios.post('http://localhost:5000/signup', {
+        email,
+        password,
+      });
+
+      if (response.data.message === 'User registered successfully') {
+        // Navigate to home page or dashboard upon successful login
+        navigate('/');
+      } else {
+        // Handle registration error
+        setRegistrationError('Error registering user');
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError<ErrorResponse>;
+        if (axiosError.response && axiosError.response.data.error === 'User already exists') {
+          setRegistrationError('User already exists');
+        } else {
+          console.error('Error registering user', axiosError);
+          setRegistrationError('An error occurred. Please try again.');
+        }
+      } else {
+        console.error('Error registering user', error);
+        setRegistrationError('An error occurred. Please try again.');
+      }
     }
-    // Perform sign-up logic here, e.g., send request to server, validate credentials, etc.
-    console.log('Sign-up submitted:', email, password, confirmPassword);
-    // Navigate to home page or dashboard upon successful sign-up
-    navigate('/');
   };
+
+
 
   const handleGoogleSuccess = (response: GoogleLoginResponse | GoogleLoginResponseOffline) => {
     if ('profileObj' in response) {
@@ -86,7 +115,7 @@ const SignUp: React.FC = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
-            {passwordError && <p className="text-red-500 text-xs italic">{passwordError}</p>}
+            {registrationError && <p className="text-red-500 text-xs italic">{registrationError}</p>}
           </div>
           <div className="flex items-center justify-between">
             <button
