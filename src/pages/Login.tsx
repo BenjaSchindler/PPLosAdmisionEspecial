@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GoogleLogin, GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
+import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -17,27 +18,47 @@ const Login: React.FC = () => {
         password,
       });
 
-      if (response.data.message === 'Login successful') {
+      if (response.data.token) {
+        // Store the token in localStorage or sessionStorage
+        localStorage.setItem('token', response.data.token);
+
         // Navigate to home page or dashboard upon successful login
         navigate('/');
       } else {
         // Handle login error
-        console.error('Login failed');
+        setLoginError('Invalid credentials');
       }
     } catch (error) {
       console.error('Error logging in:', error);
+      setLoginError('An error occurred. Please try again.');
     }
   };
-  const handleGoogleSuccess = (response: GoogleLoginResponse | GoogleLoginResponseOffline) => {
-    if ('profileObj' in response) {
-      // Successful Google login
-      console.log('Google login success:', response.profileObj);
-      // Navigate to home page or dashboard upon successful login
-      navigate('/');
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      const res = await axios.post('http://localhost:5000/googleLogin', {
+        googleToken: credentialResponse.credential,
+      });
+
+      if (res.data.token) {
+        // Store the token and user information in localStorage
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+
+        // Navigate to home page or dashboard upon successful login
+        navigate('/');
+      } else {
+        // Handle login error
+        console.error('Google login failed');
+      }
+    } catch (error) {
+      console.error('Error logging in with Google:', error);
     }
   };
-  const handleGoogleFailure = (error: any) => {
-    console.error('Google login error:', error);
+
+  const handleGoogleFailure = () => {
+    console.error('Google login failed');
+    // Handle login failure, display error message, etc.
   };
 
 
@@ -73,6 +94,7 @@ const Login: React.FC = () => {
               required
             />
           </div>
+          {loginError && <p className="text-red-500 text-xs italic">{loginError}</p>}
           <div className="flex items-center justify-between">
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -90,14 +112,7 @@ const Login: React.FC = () => {
                     </p>
                     <div className="border-t border-gray-300 pt-4">
                         <p className="text-gray-600 mb-2 pb-1">or</p>
-                        <GoogleLogin
-                            clientId="YOUR_GOOGLE_CLIENT_ID"
-                            buttonText="Continue with Google"
-                            onSuccess={handleGoogleSuccess}
-                            onFailure={handleGoogleFailure}
-                            cookiePolicy={'single_host_origin'}
-                            className="w-full"
-                        />
+                        <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleFailure} />
                 </div>
             </div>
         </form>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GoogleLogin, GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
+import { GoogleLogin } from '@react-oauth/google';
 import axios, { AxiosError } from 'axios';
 
 interface ErrorResponse {
@@ -27,7 +27,7 @@ const SignUp: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/signup', {
+      const response = await axios.post('http://localhost:5000/Signup', {
         email,
         password,
       });
@@ -55,20 +55,32 @@ const SignUp: React.FC = () => {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      const res = await axios.post('http://localhost:5000/googleSignUp', {
+        googleToken: credentialResponse.credential,
+      });
 
+      if (res.data.token) {
+        // Store the token in localStorage or sessionStorage
+        localStorage.setItem('token', res.data.token);
 
-  const handleGoogleSuccess = (response: GoogleLoginResponse | GoogleLoginResponseOffline) => {
-    if ('profileObj' in response) {
-      // Successful Google sign-up
-      console.log('Google sign-up success:', response.profileObj);
-      // Navigate to home page or dashboard upon successful sign-up
-      navigate('/');
+        // Navigate to home page or dashboard upon successful sign-up
+        navigate('/');
+      } else {
+        // Handle sign-up error
+        console.error('Google sign-up failed');
+      }
+    } catch (error) {
+      console.error('Error signing up with Google:', error);
     }
   };
 
-  const handleGoogleFailure = (error: any) => {
-    console.error('Google sign-up error:', error);
+  const handleGoogleFailure = () => {
+    console.error('Google sign-up failed');
+    setRegistrationError('An error occurred during Google sign-up');
   };
+
 
   return (
     <div className="flex justify-center items-center h-screen bg-slate-900">
@@ -127,20 +139,16 @@ const SignUp: React.FC = () => {
           </div>
           <div className="mt-4 text-center">
             <p className="text-gray-600 mb-2">
-                    Already have an account?{' '}
-                <Link to="/login" className="text-blue-500 hover:text-blue-700 font-bold">
-                    Log in
-                </Link>
+              Already have an account?{' '}
+              <Link to="/login" className="text-blue-500 hover:text-blue-700 font-bold">
+                Log in
+              </Link>
             </p>
             <div className="border-t border-gray-300 pt-4">
-              <p className="text-gray-600 mb-2">or</p>
+              <p className="text-gray-600 mb-2 pb-1">or</p>
               <GoogleLogin
-                clientId="YOUR_ACTUAL_GOOGLE_CLIENT_ID"
-                buttonText="Sign up with Google"
                 onSuccess={handleGoogleSuccess}
-                onFailure={handleGoogleFailure}
-                cookiePolicy={'single_host_origin'}
-                className="w-full"
+                onError={handleGoogleFailure}
               />
             </div>
           </div>
