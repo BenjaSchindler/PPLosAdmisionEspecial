@@ -39,12 +39,15 @@ const Login: React.FC = () => {
       const res = await axios.post('http://localhost:5000/googleLogin', {
         googleToken: credentialResponse.credential,
       });
-
+  
       if (res.data.token) {
         // Store the token and user information in localStorage
         localStorage.setItem('token', res.data.token);
-        localStorage.setItem('user', JSON.stringify(res.data.user));
-
+        localStorage.setItem('user', JSON.stringify({
+          email: res.data.user.email,
+          photoURL: res.data.user.photoURL,
+        }));
+  
         // Navigate to home page or dashboard upon successful login
         navigate('/');
       } else {
@@ -104,16 +107,19 @@ const Login: React.FC = () => {
             </button>
             </div>
             <div className="mt-4 text-center">
-                    <p className="text-gray-600 mb-2">
-                    Don't have an account?{' '}
-                    <Link to="/signup" className="text-blue-500 hover:text-blue-700 font-bold">
-                        Sign up
-                    </Link>
-                    </p>
-                    <div className="border-t border-gray-300 pt-4">
-                        <p className="text-gray-600 mb-2 pb-1">or</p>
-                        <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleFailure} />
-                </div>
+              <p className="text-gray-600 mb-2">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-blue-500 hover:text-blue-700 font-bold">
+                  Sign up
+              </Link>
+              </p>
+              <div className="border-t border-gray-300 pt-4">
+                <p className="text-gray-600 mb-2 pb-1">or</p>
+                <GoogleLogin 
+                onSuccess={handleGoogleSuccess} 
+                onError={handleGoogleFailure} 
+                />
+              </div>
             </div>
         </form>
 

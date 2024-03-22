@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { googleLogout } from '@react-oauth/google';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem('token'); // Check if the user is logged in
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -14,6 +16,10 @@ const Navbar: React.FC = () => {
 
   const closeMenu = () => {
     setIsOpen(false);
+  };
+
+  const toggleUserMenu = () => {
+    setIsUserMenuOpen(!isUserMenuOpen);
   };
 
   const handleSignOut = () => {
@@ -26,8 +32,45 @@ const Navbar: React.FC = () => {
 
     // Redirect to the login page
     navigate('/login');
+
+    // Close the user menu
+    setIsUserMenuOpen(false);
   };
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      userMenuRef.current &&
+      !userMenuRef.current.contains(event.target as Node)
+    ) {
+      setIsUserMenuOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
+  const getUserInitial = () => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      try {
+        const parsedUser = JSON.parse(user);
+        if (parsedUser.photoURL) {
+          return parsedUser.photoURL;
+        } else {
+          const email = parsedUser.email;
+          return email.charAt(0).toUpperCase();
+        }
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        return '';
+      }
+    }
+    return '';
+  };
   return (
     <nav className="bg-slate-950 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,36 +86,49 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
-              <Link
-                to="/"
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Home
-              </Link>
-              <Link
-                to="/about"
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                About
-              </Link>
-              <Link
-                to="/contact"
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Contact
-              </Link>
-            </div>
-          </div>
-          <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6">
-              {isLoggedIn ? (
-                  <button
-                    onClick={handleSignOut}
-                    className="ml-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                  >
-                    Sign Out
-                  </button>
+                {isLoggedIn ? (
+                  <div className="relative" ref={userMenuRef}>
+                    <button
+                      onClick={toggleUserMenu}
+                      className="flex items-center focus:outline-none"
+                    >
+                      {getUserInitial() ? (
+                              <img
+                                className="h-8 w-8 rounded-full"
+                                src={getUserInitial()}
+                                alt="User"
+                              />
+                            ) : (
+                              <div className="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center">
+                                <svg
+                                  className="h-6 w-6 text-white"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                  />
+                                </svg>
+                              </div>
+                            )}
+                    </button>
+                    {isUserMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
+                        <button
+                          onClick={handleSignOut}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                        >
+                          Sign Out
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <>
                     <Link

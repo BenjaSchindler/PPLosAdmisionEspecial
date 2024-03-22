@@ -8,6 +8,7 @@ interface ErrorResponse {
 }
 
 const SignUp: React.FC = () => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -25,14 +26,21 @@ const SignUp: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.post('http://localhost:5000/Signup', {
+        username,
         email,
         password,
       });
-
-      if (response.data.message === 'User registered successfully') {
+  
+      if (response.status === 201) {
+        const { token, user } = response.data;
+  
+        // Store the token and user information in localStorage
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+  
         // Navigate to home page or dashboard upon successful login
         navigate('/');
       } else {
@@ -57,35 +65,52 @@ const SignUp: React.FC = () => {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      const res = await axios.post('http://localhost:5000/googleSignUp', {
+      const res = await axios.post('http://localhost:5000/googleLogin', {
         googleToken: credentialResponse.credential,
       });
-
+  
       if (res.data.token) {
-        // Store the token in localStorage or sessionStorage
+        // Store the token and user information in localStorage
         localStorage.setItem('token', res.data.token);
-
-        // Navigate to home page or dashboard upon successful sign-up
+        localStorage.setItem('user', JSON.stringify({
+          email: res.data.user.email,
+          photoURL: res.data.user.photoURL,
+        }));
+  
+        // Navigate to home page or dashboard upon successful login
         navigate('/');
       } else {
-        // Handle sign-up error
-        console.error('Google sign-up failed');
+        // Handle login error
+        console.error('Google login failed');
       }
     } catch (error) {
-      console.error('Error signing up with Google:', error);
+      console.error('Error logging in with Google:', error);
     }
   };
 
   const handleGoogleFailure = () => {
-    console.error('Google sign-up failed');
-    setRegistrationError('An error occurred during Google sign-up');
+    console.error('Google login failed');
+    // Handle login failure, display error message, etc.
   };
-
 
   return (
     <div className="flex justify-center items-center h-screen bg-slate-900">
       <div className="w-full max-w-xs">
         <form className="bg-slate-950 shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+              Username
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="username"
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
               Email

@@ -11,8 +11,8 @@ const secretKey = process.env.SECRET_KEY;
 
 // Define the User schema
 const userSchema = new mongoose.Schema({
-  username: String,
-  email: String,
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
   password: String,
 });
 
@@ -21,7 +21,7 @@ const app = express();
 
 // Enable CORS for all routes
 app.use(cors({
-  origin: 'http://localhost:3000', // Replace with your frontend URL
+  origin: 'http://localhost:3000', 
 }));
 app.use(express.json());
 
@@ -45,13 +45,16 @@ app.post('/Signup', async (req, res) => {
 
   try {
     // Check if the user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Generate a salt
+    const salt = await bcrypt.genSalt(10);
+
+    // Hash the password with the salt
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create a new user
     const newUser = new User({
@@ -63,7 +66,17 @@ app.post('/Signup', async (req, res) => {
     // Save the user to the database
     await newUser.save();
 
-    res.status(201).json({ message: 'User registered successfully' });
+    // Generate a JWT token
+    const token = jwt.sign({ userId: newUser._id }, secretKey);
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      token,
+      user: {
+        username: newUser.username,
+        email: newUser.email,
+      },
+    });
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -72,11 +85,13 @@ app.post('/Signup', async (req, res) => {
 
 // User login route
 app.post('/Login', async (req, res) => {
-  const { email, password } = req.body;
+  const { usernameOrEmail, password } = req.body;
 
   try {
-    // Find the user by email
-    const user = await User.findOne({ email });
+    // Find the user by username or email
+    const user = await User.findOne({
+      $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+    });
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -106,40 +121,6 @@ async function verifyGoogleToken(token) {
   return payload;
 }
 
-app.post('/googleSignUp', async (req, res) => {
-  const { googleToken } = req.body;
-
-  try {
-    // Verify the Google token
-    const payload = await verifyGoogleToken(googleToken);
-    const userId = payload['sub'];
-    const email = payload['email'];
-
-    // Check if the user already exists in the database
-    let user = await User.findOne({ email });
-
-    if (user) {
-      return res.status(400).json({ error: 'User already exists' });
-    }
-
-    // Create a new user
-    const newUser = new User({
-      username: email,
-      email,
-      password: '',
-    });
-    user = await newUser.save();
-
-    // Generate a JWT token
-    const token = jwt.sign({ userId: user._id }, secretKey);
-
-    res.status(201).json({ token });
-  } catch (error) {
-    console.error('Error signing up with Google:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
 app.post('/googleLogin', async (req, res) => {
   const { googleToken } = req.body;
 
@@ -148,6 +129,7 @@ app.post('/googleLogin', async (req, res) => {
     const payload = await verifyGoogleToken(googleToken);
     const userId = payload['sub'];
     const email = payload['email'];
+    const photoURL = payload['picture'];
 
     // Check if the user exists in the database
     let user = await User.findOne({ email });
@@ -155,7 +137,7 @@ app.post('/googleLogin', async (req, res) => {
     if (!user) {
       // Create a new user if not exists
       const newUser = new User({
-        username: email,
+        username: email.split('@')[0], // Use the email prefix as the username
         email,
         password: '',
       });
@@ -165,7 +147,15 @@ app.post('/googleLogin', async (req, res) => {
     // Generate a JWT token
     const token = jwt.sign({ userId: user._id }, secretKey);
 
-    res.status(200).json({ token });
+    // Send the user data along with the token
+    res.status(200).json({
+      token,
+      user: {
+        username: user.username,
+        email: user.email,
+        photoURL: photoURL,
+      },
+    });
   } catch (error) {
     console.error('Error logging in with Google:', error);
     res.status(500).json({ error: 'Internal server error' });
