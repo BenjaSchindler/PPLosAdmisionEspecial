@@ -4,7 +4,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ const Login: React.FC = () => {
 
     try {
       const response = await axios.post('http://localhost:5000/Login', {
-        email,
+        usernameOrEmail,
         password,
       });
 
@@ -71,15 +71,15 @@ const Login: React.FC = () => {
         <form className="bg-slate-950 shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-              Email
+              Email or Username
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="email"
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="Email or Username"
+              type="Email or Username"
+              placeholder="Email or Username"
+              value={usernameOrEmail}
+              onChange={(e) => setUsernameOrEmail(e.target.value)}
               required
             />
           </div>
