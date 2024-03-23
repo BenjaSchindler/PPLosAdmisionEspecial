@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: String,
+  photoURL: String, // Add the photoURL field
 });
 
 // Create an instance of the Express application
@@ -61,6 +62,7 @@ app.post('/Signup', async (req, res) => {
       username,
       email,
       password: hashedPassword,
+      photoURL: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/542px-Unknown_person.jpg',
     });
 
     // Save the user to the database
@@ -130,6 +132,7 @@ app.post('/googleLogin', async (req, res) => {
     const userId = payload['sub'];
     const email = payload['email'];
     const photoURL = payload['picture'];
+    const username = email.split('@')[0]; // Use the email prefix as the username
 
     // Check if the user exists in the database
     let user = await User.findOne({ email });
@@ -137,11 +140,19 @@ app.post('/googleLogin', async (req, res) => {
     if (!user) {
       // Create a new user if not exists
       const newUser = new User({
-        username: email.split('@')[0], // Use the email prefix as the username
+        username,
         email,
         password: '',
+        photoURL,
       });
       user = await newUser.save();
+    } else {
+      // Update the user's photo URL and username if they have changed
+      if (user.photoURL !== photoURL || user.username !== username) {
+        user.photoURL = photoURL;
+        user.username = username;
+        await user.save();
+      }
     }
 
     // Generate a JWT token
@@ -151,9 +162,9 @@ app.post('/googleLogin', async (req, res) => {
     res.status(200).json({
       token,
       user: {
-        username: user.username,
+        username,
         email: user.email,
-        photoURL: photoURL,
+        photoURL,
       },
     });
   } catch (error) {
