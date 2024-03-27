@@ -88,7 +88,11 @@ const Home: React.FC = () => {
           }}>
           <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
           <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>Vuelve realidad tus proyectos gracias a la IA generativa</h1>
-          <img src="https://i.imgur.com/YXpZPKU.png" style={{ width: '30%', margin: 'auto' }} />
+          <img
+            src="https://i.imgur.com/YXpZPKU.png"
+            alt="logo-grande"
+            style={{ width: '30%', margin: 'auto' }}
+          />
           </div>
         </ParallaxLayer>
 
