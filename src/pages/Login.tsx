@@ -11,17 +11,22 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.post('http://localhost:5000/Login', {
         usernameOrEmail,
         password,
       });
-
+  
       if (response.data.token) {
-        // Store the token in localStorage or sessionStorage
+        // Store the token and user information in localStorage
         localStorage.setItem('token', response.data.token);
-
+        localStorage.setItem('user', JSON.stringify({
+          username: response.data.user.username,
+          email: response.data.user.email,
+          photoURL: response.data.user.photoURL,
+        }));
+  
         // Navigate to home page or dashboard upon successful login
         navigate('/');
       } else {
@@ -44,6 +49,7 @@ const Login: React.FC = () => {
         // Store the token and user information in localStorage
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('user', JSON.stringify({
+          username: res.data.user.username,
           email: res.data.user.email,
           photoURL: res.data.user.photoURL,
         }));
