@@ -92,7 +92,8 @@ const Navbar: React.FC = () => {
                 alt="Blitz Scaling"
                 className="h-8 w-auto mr-2"
               />
-              <span className="text-white font-bold text-xl">Blitz Scaling</span>
+              <span className="text-white font-bold text-xl" style={{ fontFamily: 'Orbitron, sans-serif' }}>Blitz Scaling.AI</span>
+
             </Link>
           </div>
           <div className="hidden md:block">
@@ -138,17 +139,20 @@ const Navbar: React.FC = () => {
                 ) : (
                   <>
                     <Link
-                      to="/login"
-                      className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      Log In
-                    </Link>
-                    <Link
-                      to="/signup"
-                      className="ml-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      Sign Up
-                    </Link>
+                        to="/login"
+                        className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                        style={{ fontFamily: 'Orbitron, sans-serif' }}
+                      >
+                        Log In
+                      </Link>
+                      <Link
+                        to="/signup"
+                        className="ml-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        style={{ fontFamily: 'Orbitron, sans-serif' }}
+                      >
+                        Sign Up
+                      </Link>
+
                   </>
                 )}
             </div>
