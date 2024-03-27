@@ -51,3 +51,32 @@ html, body, .app-container {
   height: 100vh; /* Establece el alto al 100% del viewport */
   /* Añade otros estilos si es necesario */
 }
+@keyframes typing {
+  from {
+    width: 0;
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+
+.typing-text {
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 2px solid;
+  font-family: Orbitron, sans-serif;
+  font-size: 1em; /* Reduciendo aún más el tamaño de la fuente */
+  color: #FFFFFF;
+  animation: typing 15s steps(150), blink 1s step-end infinite alternate; /* Ajustando la velocidad de la animación */
+}
+.blinking-dot {
+  display: none;
+}
+
+
+
+
+

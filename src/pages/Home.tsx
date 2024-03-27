@@ -1,5 +1,6 @@
 import React, { useRef } from 'react'
 import { Parallax, ParallaxLayer, IParallax } from '@react-spring/parallax'
+import Typist from 'react-typist';
 
 const url = (name: string, wrap = false) =>
   `${wrap ? 'url(' : ''}https://awv3node-homepage.surge.sh/build/assets/${name}.svg${wrap ? ')' : ''}`
@@ -85,16 +86,22 @@ const Home: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            position: 'relative', // Añade posición relativa al contenedor
+            position: 'relative',
           }}>
-          <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
-          <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>Vuelve realidad tus proyectos gracias a la IA generativa</h1>
-          <img
-            src="https://i.imgur.com/YXpZPKU.png"
-            alt="logo-grande"
-            style={{ width: '30%', margin: 'auto' }}
-          />
-          </div>
+         <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
+         <Typist cursor={{ show: false }} avgTypingDelay={40}>
+        <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>
+          <Typist.Delay ms={1000} />
+          <span className="typing-text">Vuelve realidad tus proyectos gracias a la IA generativa</span>
+          <span className="blinking-dot">.</span>
+        </h1>
+      </Typist>
+      <img
+        src="https://i.imgur.com/YXpZPKU.png"
+        alt="logo-grande"
+        style={{ width: '30%', margin: 'auto' }}
+      />
+      </div>
         </ParallaxLayer>
 
 
@@ -109,7 +116,7 @@ const Home: React.FC = () => {
             justifyContent: 'center',
           }}>
           <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
-          <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>BENJA ALERGICO A LA PALA</h1>
+          <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>BENJA ALÉRGICO A LA PALA</h1>
           <img src={url('bash')} style={{ width: '40%', margin: 'auto' }} />
           </div>
         </ParallaxLayer>
