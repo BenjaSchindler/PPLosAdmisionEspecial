@@ -17,7 +17,7 @@ const Home: React.FC = () => {
             speed={0}
             factor={3}
             style={{
-              backgroundImage: 'url(https://i.imgur.com/ZNV81El.jpg)', // URL directa de la imagen en Imgur
+              backgroundImage: 'url(https://i.imgur.com/ZNV81El.jpg)',
               backgroundSize: 'cover',
             }}
           />
@@ -34,7 +34,7 @@ const Home: React.FC = () => {
         </ParallaxLayer>
 
         <ParallaxLayer offset={1.75} speed={0.5} style={{ opacity: 0.1 }}>
-          <img src={url('server')} style={{ display: 'block', width: '20%', marginLeft: '70%' }} />
+          <img src={url('cloud')} style={{ display: 'block', width: '20%', marginLeft: '70%' }} />
           <img src={url('cloud')} style={{ display: 'block', width: '20%', marginLeft: '40%' }} />
         </ParallaxLayer>
 
@@ -88,7 +88,7 @@ const Home: React.FC = () => {
           }}>
           <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
           <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>Benja agarra la pala</h1>
-          <img src="https://i.imgur.com/Ts406fT.png" style={{ width: '30%', margin: 'auto' }} />
+          <img src="https://i.imgur.com/YXpZPKU.png" style={{ width: '30%', margin: 'auto' }} />
           </div>
         </ParallaxLayer>
 
