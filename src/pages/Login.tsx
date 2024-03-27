@@ -70,9 +70,15 @@ const Login: React.FC = () => {
     // Handle login failure, display error message, etc.
   };
 
-
   return (
-    <div className="flex justify-center items-center h-screen bg-slate-900">
+    <div 
+      className="flex justify-center items-center h-screen" 
+      style={{ 
+        backgroundImage: 'url(https://i.imgur.com/ZNV81El.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
       <div className="w-full max-w-xs">
         <form className="bg-slate-950 shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -111,26 +117,25 @@ const Login: React.FC = () => {
             >
               Sign In
             </button>
-            </div>
-            <div className="mt-4 text-center">
-              <p className="text-gray-600 mb-2">
+          </div>
+          <div className="mt-4 text-center">
+            <p className="text-gray-600 mb-2">
               Don't have an account?{' '}
               <Link to="/signup" className="text-blue-500 hover:text-blue-700 font-bold">
-                  Sign up
+                Sign up
               </Link>
-              </p>
-              <div className="border-t border-gray-300 pt-4">
-                <p className="text-gray-600 mb-2 pb-1">or</p>
-                <GoogleLogin 
+            </p>
+            <div className="border-t border-gray-300 pt-4">
+              <p className="text-gray-600 mb-2 pb-1">or</p>
+              <GoogleLogin 
                 onSuccess={handleGoogleSuccess} 
                 onError={handleGoogleFailure} 
-                />
-              </div>
+              />
             </div>
+          </div>
         </form>
-
-  </div>
-</div>
+      </div>
+    </div>
   );
 };
 
