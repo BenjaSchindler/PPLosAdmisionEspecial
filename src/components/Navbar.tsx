@@ -88,7 +88,7 @@ const Navbar: React.FC = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <img
-                src="https://i.imgur.com/6qoxKwb.jpeg"
+                src="https://i.imgur.com/3qH4MPc.png"
                 alt="Blitz Scaling"
                 className="h-8 w-auto mr-2"
               />
