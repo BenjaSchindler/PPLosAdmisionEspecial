@@ -39,9 +39,13 @@ const SignUp: React.FC = () => {
   
         // Store the token and user information in localStorage
         localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('user', JSON.stringify({
+          username: response.data.user.username,
+          email: response.data.user.email,
+          photoURL: response.data.user.photoURL,
+        }));
   
-        // Navigate to home page or dashboard upon successful login
+        // Navigate to home page or dashboard upon successful signup
         navigate('/');
       } else {
         // Handle registration error
@@ -62,7 +66,7 @@ const SignUp: React.FC = () => {
       }
     }
   };
-
+  
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
       const res = await axios.post('http://localhost:5000/googleLogin', {
@@ -73,6 +77,7 @@ const SignUp: React.FC = () => {
         // Store the token and user information in localStorage
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('user', JSON.stringify({
+          username: res.data.user.username,
           email: res.data.user.email,
           photoURL: res.data.user.photoURL,
         }));

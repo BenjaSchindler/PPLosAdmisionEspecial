@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
+const multer = require('multer');
+const path = require('path');
 require('dotenv').config();
 
 
@@ -39,6 +41,7 @@ const User = mongoose.model('User', userSchema);
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClient = new OAuth2Client(googleClientId);
+
 
 // User registration route
 app.post('/Signup', async (req, res) => {
@@ -77,6 +80,7 @@ app.post('/Signup', async (req, res) => {
       user: {
         username: newUser.username,
         email: newUser.email,
+        photoURL: user.photoURL,
       },
     });
   } catch (error) {
@@ -85,7 +89,6 @@ app.post('/Signup', async (req, res) => {
   }
 });
 
-// User login route
 app.post('/Login', async (req, res) => {
   const { usernameOrEmail, password } = req.body;
 
@@ -107,7 +110,14 @@ app.post('/Login', async (req, res) => {
     // Generate a JWT token
     const token = jwt.sign({ userId: user._id }, secretKey);
 
-    res.status(200).json({ token });
+    res.status(200).json({
+      token,
+      user: {
+        username: user.username,
+        email: user.email,
+        photoURL: user.photoURL, // Include the photoURL in the response
+      },
+    });
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -197,6 +207,62 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+
+
+// Configure multer for file upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  const allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+  if (allowedFileTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Invalid file type. Only JPG, JPEG, and PNG are allowed.'), false);
+  }
+};
+
+const upload = multer({ storage: storage, fileFilter: fileFilter });
+
+// Create the uploads directory if it doesn't exist
+const fs = require('fs');
+const uploadsDir = 'uploads';
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static('uploads'));
+
+// Add a new route to handle profile picture upload
+app.post('/uploadProfilePhoto', authenticateToken, upload.single('photo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const userId = req.user.userId;
+    const photoURL = `http://localhost:5000/uploads/${req.file.filename}`;
+
+    // Update the user's photo URL in the database
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { photoURL: photoURL },
+      { new: true }
+    );
+
+    res.status(200).json({ photoURL: user.photoURL });
+  } catch (error) {
+    console.error('Error uploading profile photo:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Start the server
 app.listen(5000, () => {
