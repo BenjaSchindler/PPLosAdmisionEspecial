@@ -11,12 +11,12 @@ import { Parallax, ParallaxLayer, IParallax } from '@react-spring/parallax';
 
 
 const App: React.FC = () => {
-  const parallax = useRef<IParallax>(null!)
+  const parallax = useRef<IParallax>(null!);
+
   return (
-    
     <GoogleOAuthProvider clientId="724740010868-5ig790ee5btbdtgfmifhu8dqi8gmjvj0.apps.googleusercontent.com">
       <Router>
-        <div>
+        <div style={{ height: '100vh', overflowY: 'hidden' }}> {/* Estilo para ocupar toda la altura y ocultar la barra de desplazamiento vertical */}
           <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
@@ -28,7 +28,6 @@ const App: React.FC = () => {
         </div>
       </Router>
     </GoogleOAuthProvider>
-    
   );
 };
 
