@@ -8,6 +8,7 @@ import Signup from './pages/Signup';
 import Navbar from './components/Navbar';
 import Profile from './pages/Profile';
 import { Parallax, ParallaxLayer, IParallax } from '@react-spring/parallax';
+import './App.css'; // Importa el archivo de estilos CSS si es necesario
 
 const App: React.FC = () => {
   const parallax = useRef<IParallax>(null!);
@@ -31,4 +32,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

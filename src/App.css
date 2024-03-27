@@ -10,6 +10,8 @@ html, body, .app-container {
   overflow: hidden;
 }
 
+
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -43,4 +45,9 @@ html, body, .app-container {
   to {
     transform: rotate(360deg);
   }
+}
+.app-container {
+  overflow-y: hidden; /* Oculta la barra de desplazamiento vertical */
+  height: 100vh; /* Establece el alto al 100% del viewport */
+  /* Añade otros estilos si es necesario */
 }

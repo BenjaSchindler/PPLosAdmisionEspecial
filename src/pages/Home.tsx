@@ -11,6 +11,7 @@ const Home: React.FC = () => {
       <Parallax ref={parallax} pages={3}>
         <ParallaxLayer offset={1} speed={1} style={{ backgroundColor: '#4B4746' }} />
         <ParallaxLayer offset={2} speed={1} style={{ backgroundColor: '#4B4746' }} />
+        
 
         <ParallaxLayer
             offset={0}
@@ -22,7 +23,7 @@ const Home: React.FC = () => {
             }}
           />
 
-
+              
         <ParallaxLayer offset={1.3} speed={-0.3} style={{ pointerEvents: 'none' }}>
           
         
