@@ -13,7 +13,7 @@ const Login: React.FC = () => {
     e.preventDefault();
   
     try {
-      const response = await axios.post('http://localhost:5000/Login', {
+      const response = await axios.post('http://localhost:8080/Login', {
         usernameOrEmail,
         password,
       });
@@ -41,7 +41,7 @@ const Login: React.FC = () => {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      const res = await axios.post('http://localhost:5000/googleLogin', {
+      const res = await axios.post('http://localhost:8080/googleLogin', {
         googleToken: credentialResponse.credential,
       });
   

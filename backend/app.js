@@ -248,7 +248,7 @@ app.post('/uploadProfilePhoto', authenticateToken, upload.single('photo'), async
     }
 
     const userId = req.user.userId;
-    const photoURL = `http://localhost:5000/uploads/${req.file.filename}`;
+    const photoURL = `http://localhost:8080/uploads/${req.file.filename}`;
 
     // Update the user's photo URL in the database
     const user = await User.findByIdAndUpdate(
@@ -265,6 +265,6 @@ app.post('/uploadProfilePhoto', authenticateToken, upload.single('photo'), async
 });
 
 // Start the server
-app.listen(5000, () => {
-  console.log('Server is running on port 5000');
+app.listen(8080, () => {
+  console.log('Server is running on port 8080');
 });

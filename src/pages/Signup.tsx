@@ -28,7 +28,7 @@ const SignUp: React.FC = () => {
     e.preventDefault();
   
     try {
-      const response = await axios.post('http://localhost:5000/Signup', {
+      const response = await axios.post('http://localhost:8080/Signup', {
         username,
         email,
         password,
@@ -69,7 +69,7 @@ const SignUp: React.FC = () => {
   
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      const res = await axios.post('http://localhost:5000/googleLogin', {
+      const res = await axios.post('http://localhost:8080/googleLogin', {
         googleToken: credentialResponse.credential,
       });
   
