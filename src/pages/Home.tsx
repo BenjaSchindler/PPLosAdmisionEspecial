@@ -1,12 +1,14 @@
 import React, { useRef } from 'react'
 import { Parallax, ParallaxLayer, IParallax } from '@react-spring/parallax'
+import { FormattedMessage } from 'react-intl';
 import Typist from 'react-typist';
 
 const url = (name: string, wrap = false) =>
-  `${wrap ? 'url(' : ''}https://awv3node-homepage.surge.sh/build/assets/${name}.svg${wrap ? ')' : ''}`
+  `${wrap ? 'url(' : ''}https://awv3node-homepage.surge.sh/build/assets/${name}.svg${wrap ? ')' : ''}`;
 
 const Home: React.FC = () => {
-  const parallax = useRef<IParallax>(null!)
+  const parallax = useRef<IParallax>(null!);
+
   return (
     <div style={{ width: '100%', height: '100%', background: '#253237' }}>
       <Parallax ref={parallax} pages={3}>
@@ -15,19 +17,18 @@ const Home: React.FC = () => {
         
 
         <ParallaxLayer
-            offset={0}
-            speed={0}
-            factor={3}
-            style={{
-              backgroundImage: 'url(https://i.imgur.com/ZNV81El.jpg)',
-              backgroundSize: 'cover',
-            }}
-          />
+          offset={0}
+          speed={0}
+          factor={3}
+          style={{
+            backgroundImage: 'url(https://i.imgur.com/ZNV81El.jpg)',
+            backgroundSize: 'cover',
+          }}
+        />
 
-              
+
         <ParallaxLayer offset={1.3} speed={-0.3} style={{ pointerEvents: 'none' }}>
           
-        
         </ParallaxLayer>
 
         <ParallaxLayer offset={1} speed={0.8} style={{ opacity: 0.1 }}>
@@ -64,7 +65,8 @@ const Home: React.FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
             pointerEvents: 'none',
-          }}>
+          }}
+        >
           
         </ParallaxLayer>
 
@@ -74,7 +76,6 @@ const Home: React.FC = () => {
           style={{
             backgroundSize: '80%',
             backgroundPosition: 'center',
-            
           }}
         />
 
@@ -86,7 +87,7 @@ const Home: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            position: 'relative',
+            position: 'relative', // Añade posición relativa al contenedor
           }}>
          <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
          <Typist cursor={{ show: false }} avgTypingDelay={40}>
@@ -94,6 +95,7 @@ const Home: React.FC = () => {
           <Typist.Delay ms={1000} />
           <span className="typing-text">Vuelve realidad tus proyectos gracias a la IA generativa</span>
           <span className="blinking-dot">.</span>
+          <FormattedMessage id="home.title1" />
         </h1>
       </Typist>
       <img
@@ -104,8 +106,6 @@ const Home: React.FC = () => {
       </div>
         </ParallaxLayer>
 
-
-
         <ParallaxLayer
           offset={1}
           speed={0.1}
@@ -114,9 +114,12 @@ const Home: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-          }}>
+          }}
+        >
           <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
-          <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>BENJA ALÉRGICO A LA PALA</h1>
+          <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>BENJA ALÉRGICO A LA PALA
+          <FormattedMessage id="home.title2" />
+          </h1>
           <img src={url('bash')} style={{ width: '40%', margin: 'auto' }} />
           </div>
         </ParallaxLayer>
@@ -128,18 +131,19 @@ const Home: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            
           }}
-          onClick={() => parallax.current.scrollTo(0)}>
+          onClick={() => parallax.current.scrollTo(0)}
+        >
           <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
-          <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>Acelera tu crecimiento</h1>
-          <img src={url('server')} style={{ width: '20%', margin: 'auto' }} />
+            <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>
+              <FormattedMessage id="home.title3" />
+            </h1>
+            <img src={url('server')} style={{ width: '20%', margin: 'auto' }} />
           </div>
-          
         </ParallaxLayer>
-      </Parallax>
+      </Parallax> {/* Add the closing tag for Parallax */}
     </div>
-  )
+  );
 };
 
 export default Home;
