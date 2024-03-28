@@ -40,11 +40,7 @@ const SignUp: React.FC = () => {
   
         // Store the token and user information in localStorage
         localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify({
-          username: response.data.user.username,
-          email: response.data.user.email,
-          photoURL: response.data.user.photoURL,
-        }));
+        localStorage.setItem('user', JSON.stringify(user));
   
         // Navigate to home page or dashboard upon successful signup
         navigate('/');
