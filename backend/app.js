@@ -80,7 +80,7 @@ app.post('/Signup', async (req, res) => {
       user: {
         username: newUser.username,
         email: newUser.email,
-        photoURL: user.photoURL,
+        photoURL: newUser.photoURL, // Use newUser.photoURL instead of user.photoURL
       },
     });
   } catch (error) {
