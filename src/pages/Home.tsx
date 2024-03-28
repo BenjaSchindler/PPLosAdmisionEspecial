@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
-import { Parallax, ParallaxLayer, IParallax } from '@react-spring/parallax';
+import React, { useRef } from 'react'
+import { Parallax, ParallaxLayer, IParallax } from '@react-spring/parallax'
 import { FormattedMessage } from 'react-intl';
+import Typist from 'react-typist';
 
 const url = (name: string, wrap = false) =>
   `${wrap ? 'url(' : ''}https://awv3node-homepage.surge.sh/build/assets/${name}.svg${wrap ? ')' : ''}`;
@@ -13,6 +14,7 @@ const Home: React.FC = () => {
       <Parallax ref={parallax} pages={3}>
         <ParallaxLayer offset={1} speed={1} style={{ backgroundColor: '#4B4746' }} />
         <ParallaxLayer offset={2} speed={1} style={{ backgroundColor: '#4B4746' }} />
+        
 
         <ParallaxLayer
           offset={0}
@@ -23,6 +25,7 @@ const Home: React.FC = () => {
             backgroundSize: 'cover',
           }}
         />
+
 
         <ParallaxLayer offset={1.3} speed={-0.3} style={{ pointerEvents: 'none' }}>
           
@@ -84,15 +87,23 @@ const Home: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            position: 'relative',
-          }}
-        >
-          <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
-            <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>
-              <FormattedMessage id="home.title1" />
-            </h1>
-            <img src="https://i.imgur.com/YXpZPKU.png" style={{ width: '30%', margin: 'auto' }} />
-          </div>
+            position: 'relative', // Añade posición relativa al contenedor
+          }}>
+         <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
+         <Typist cursor={{ show: false }} avgTypingDelay={40}>
+        <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>
+          <Typist.Delay ms={1000} />
+          <span className="typing-text">Vuelve realidad tus proyectos gracias a la IA generativa</span>
+          <span className="blinking-dot">.</span>
+          <FormattedMessage id="home.title1" />
+        </h1>
+      </Typist>
+      <img
+        src="https://i.imgur.com/YXpZPKU.png"
+        alt="logo-grande"
+        style={{ width: '30%', margin: 'auto' }}
+      />
+      </div>
         </ParallaxLayer>
 
         <ParallaxLayer
@@ -106,10 +117,10 @@ const Home: React.FC = () => {
           }}
         >
           <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
-            <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>
-              <FormattedMessage id="home.title2" />
-            </h1>
-            <img src={url('bash')} style={{ width: '40%', margin: 'auto' }} />
+          <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>BENJA ALÉRGICO A LA PALA
+          <FormattedMessage id="home.title2" />
+          </h1>
+          <img src={url('bash')} style={{ width: '40%', margin: 'auto' }} />
           </div>
         </ParallaxLayer>
 

@@ -93,7 +93,7 @@ const Navbar: React.FC = () => {
                 alt="Blitz Scaling"
                 className="h-8 w-auto mr-2"
               />
-              <span className="text-white font-bold text-xl" style={{ fontFamily: 'Orbitron, sans-serif' }}>Blitz Scaling.AI</span>
+              <span className="text-white font-bold text-xl" style={{ fontFamily: 'Orbitron, sans-serif' }}>Blitz</span>
 
             </Link>
           </div>
