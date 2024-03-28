@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { googleLogout } from '@react-oauth/google';
+import LanguageSelector from './LanguageSelector';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -98,7 +99,8 @@ const Navbar: React.FC = () => {
           </div>
           <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6">
-            {isLoggedIn ? (
+              <LanguageSelector />
+              {isLoggedIn ? (
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={toggleUserMenu}
@@ -140,25 +142,24 @@ const Navbar: React.FC = () => {
                     </div>
                   )}
                   </div>
-                ) : (
-                  <>
-                    <Link
-                        to="/login"
-                        className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                        style={{ fontFamily: 'Orbitron, sans-serif' }}
-                      >
-                        Log In
-                      </Link>
-                      <Link
-                        to="/signup"
-                        className="ml-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        style={{ fontFamily: 'Orbitron, sans-serif' }}
-                      >
-                        Sign Up
-                      </Link>
-
-                  </>
-                )}
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                    style={{ fontFamily: 'Orbitron, sans-serif' }}
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="ml-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    style={{ fontFamily: 'Orbitron, sans-serif' }}
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
           <div className="-mr-2 flex md:hidden">
@@ -241,6 +242,7 @@ const Navbar: React.FC = () => {
         </div>
         <div className="pt-4 pb-3 border-t border-gray-700">
           <div className="flex items-center px-5">
+            <LanguageSelector />
           {isLoggedIn ? (
               <>
                 <div className="flex items-center">

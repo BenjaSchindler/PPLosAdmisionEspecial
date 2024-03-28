@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import axios, { AxiosError } from 'axios';
+import { FormattedMessage } from 'react-intl';
 
 interface ErrorResponse {
   error: string;
@@ -104,7 +105,7 @@ const SignUp: React.FC = () => {
         <form className="bg-slate-950 shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-              Username
+              <FormattedMessage id="signup.usernameLabel" />
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -118,7 +119,7 @@ const SignUp: React.FC = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-              Email
+              <FormattedMessage id="signup.emailLabel" />
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -132,7 +133,7 @@ const SignUp: React.FC = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-              Password
+              <FormattedMessage id="signup.passwordLabel" />
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -146,7 +147,7 @@ const SignUp: React.FC = () => {
           </div>
           <div className="mb-6">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
-              Confirm Password
+              <FormattedMessage id="signup.confirmPasswordLabel" />
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -164,14 +165,14 @@ const SignUp: React.FC = () => {
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit"
             >
-              Sign Up
+              <FormattedMessage id="signup.submitButton" />
             </button>
           </div>
           <div className="mt-4 text-center">
             <p className="text-gray-600 mb-2">
-              Already have an account?{' '}
+              <FormattedMessage id="signup.loginText" />{' '}
               <Link to="/login" className="text-blue-500 hover:text-blue-700 font-bold">
-                Log in
+                <FormattedMessage id="signup.loginLink" />
               </Link>
             </p>
             <div className="border-t border-gray-300 pt-4">

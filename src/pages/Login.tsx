@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
+import { FormattedMessage } from 'react-intl';
 
 const Login: React.FC = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
@@ -77,7 +78,7 @@ const Login: React.FC = () => {
         <form className="bg-slate-950 shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-              Email or Username
+              <FormattedMessage id="login.emailLabel" />
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -91,7 +92,7 @@ const Login: React.FC = () => {
           </div>
           <div className="mb-6">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-              Password
+              <FormattedMessage id="login.passwordLabel" />
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -109,15 +110,19 @@ const Login: React.FC = () => {
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit"
             >
-              Sign In
+              <FormattedMessage id="login.submitButton" />
             </button>
-            </div>
-            <div className="mt-4 text-center">
-              <p className="text-gray-600 mb-2">
-              Don't have an account?{' '}
+          </div>
+          <div className="mt-4 text-center">
+            <p className="text-gray-600 mb-2">
+              <FormattedMessage id="login.signupText" />{' '}
               <Link to="/signup" className="text-blue-500 hover:text-blue-700 font-bold">
-                  Sign up
+                <FormattedMessage id="login.signupLink" />
               </Link>
+            </p>
+            <div className="border-t border-gray-300 pt-4">
+              <p className="text-gray-600 mb-2 pb-1">
+                <FormattedMessage id="login.or" />
               </p>
               <div className="border-t border-gray-300 pt-4">
                 <p className="text-gray-600 mb-2 pb-1">or</p>
@@ -126,11 +131,11 @@ const Login: React.FC = () => {
                 onError={handleGoogleFailure} 
                 />
               </div>
+              </div>
             </div>
         </form>
-
-  </div>
-</div>
+      </div>
+    </div>
   );
 };
 
