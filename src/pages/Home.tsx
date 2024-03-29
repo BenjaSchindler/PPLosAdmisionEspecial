@@ -101,7 +101,7 @@ const Home: React.FC = () => {
       </Typist>
       <img
         src="https://i.imgur.com/YXpZPKU.png"
-        alt="logo-grande"
+        alt="logo-grande" 
         style={{ width: '30%', margin: 'auto' }}
       />
       </div>
