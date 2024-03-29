@@ -6,9 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 
 
-
-
-
 const Login: React.FC = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
