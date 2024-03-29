@@ -10,8 +10,9 @@ const Navbar: React.FC = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const isLoggedIn = localStorage.getItem('token'); // Check if the user is logged in
+  const isLoggedIn = localStorage.getItem('token');
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const languageMenuRef = useRef<HTMLDivElement>(null);
 
   const { t }: { t: TFunction } = useTranslation();
 
@@ -45,9 +46,12 @@ const Navbar: React.FC = () => {
   const handleClickOutside = (event: MouseEvent) => {
     if (
       userMenuRef.current &&
-      !userMenuRef.current.contains(event.target as Node)
+      !userMenuRef.current.contains(event.target as Node) &&
+      languageMenuRef.current &&
+      !languageMenuRef.current.contains(event.target as Node)
     ) {
       setIsUserMenuOpen(false);
+      setIsOpen(false);
     }
   };
 
@@ -87,7 +91,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-slate-950 shadow-md" style={{ zIndex: 100 }}>
+    <nav className="bg-slate-950 shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
@@ -103,9 +107,11 @@ const Navbar: React.FC = () => {
           </div>
           <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6">
-              <LanguageSelector />
+              <div ref={languageMenuRef} className="relative z-50">
+                <LanguageSelector />
+              </div>
               {isLoggedIn ? (
-                <div className="relative" ref={userMenuRef}>
+                <div className="relative z-50" ref={userMenuRef}>
                   <button
                     onClick={toggleUserMenu}
                     className="flex items-center focus:outline-none"
@@ -125,10 +131,9 @@ const Navbar: React.FC = () => {
                     )}
                     </button>
                     {isUserMenuOpen && (
-                      <div
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5"
-                      style={{ zIndex: 1000 }}
-                      >
+                    <div
+                    className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50"
+                    >
                   
                       <Link
                         to="/Profile"
@@ -246,7 +251,9 @@ const Navbar: React.FC = () => {
         </div>
         <div className="pt-4 pb-3 border-t border-gray-700">
           <div className="flex items-center px-5">
-            <LanguageSelector />
+            <div ref={languageMenuRef} className="relative z-50">
+              <LanguageSelector />
+            </div>
           {isLoggedIn ? (
               <>
                 <div className="flex items-center">
