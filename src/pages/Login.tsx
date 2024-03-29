@@ -1,14 +1,21 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
-import axios from "axios";
-import { FormattedMessage } from "react-intl";
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
+
+
+
+
 
 const Login: React.FC = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
+
+  const { t }: { t: TFunction } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -92,34 +99,28 @@ const Login: React.FC = () => {
           onSubmit={handleSubmit}
         >
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="email"
-            >
-              <FormattedMessage id="login.emailLabel" />
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+              {t('login.emailLabel')}
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="Email or Username"
               type="Email or Username"
-              placeholder="Email or Username"
+              placeholder={t('login.emailLabel')}
               value={usernameOrEmail}
               onChange={(e) => setUsernameOrEmail(e.target.value)}
               required
             />
           </div>
           <div className="mb-6">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="password"
-            >
-              <FormattedMessage id="login.passwordLabel" />
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+              {t('login.passwordLabel')}
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="password"
               type="password"
-              placeholder="Password"
+              placeholder={t('login.passwordLabel')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -133,27 +134,26 @@ const Login: React.FC = () => {
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit"
             >
-              <FormattedMessage id="login.submitButton" />
+              {t('login.submitButton')}
             </button>
           </div>
           <div className="mt-4 text-center">
             <p className="text-gray-600 mb-2">
-              <FormattedMessage id="login.signupText" />{" "}
-              <Link
-                to="/signup"
-                className="text-blue-500 hover:text-blue-700 font-bold"
-              >
-                <FormattedMessage id="login.signupLink" />
+              {t('login.signupText')}{' '}
+              <Link to="/signup" className="text-blue-500 hover:text-blue-700 font-bold">
+                {t('login.signupLink')}
               </Link>
             </p>
-            <div className="border-t border-gray-300 pt-4">
-              <p className="text-gray-600 mb-2 pb-1">or</p>
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleFailure}
-              />
+
+              <div className="border-t border-gray-300 pt-4">
+                <p className="text-gray-600 mb-2 pb-1">{t("login.or")}</p>
+                <GoogleLogin 
+                onSuccess={handleGoogleSuccess} 
+                onError={handleGoogleFailure} 
+                />
+              </div>
+
             </div>
-          </div>
         </form>
       </div>
     </div>

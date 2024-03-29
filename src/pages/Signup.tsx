@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import axios, { AxiosError } from 'axios';
-import { FormattedMessage } from 'react-intl';
+import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
+
+
+
 
 interface ErrorResponse {
   error: string;
@@ -16,6 +20,8 @@ const SignUp: React.FC = () => {
   const [passwordError, setPasswordError] = useState('');
   const [registrationError, setRegistrationError] = useState('');
   const navigate = useNavigate();
+
+  const { t }: { t: TFunction } = useTranslation();
 
   useEffect(() => {
     if (password !== confirmPassword) {
@@ -108,13 +114,13 @@ const SignUp: React.FC = () => {
         <form className="bg-slate-950 shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-              <FormattedMessage id="signup.usernameLabel" />
+              {t('signup.usernameLabel')}
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="username"
               type="text"
-              placeholder="Username"
+              placeholder={t('signup.usernameLabel')}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -122,13 +128,13 @@ const SignUp: React.FC = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-              <FormattedMessage id="signup.emailLabel" />
+            {t("signup.emailLabel")}
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="email"
               type="email"
-              placeholder="Email"
+              placeholder={t("signup.emailLabel")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -136,13 +142,13 @@ const SignUp: React.FC = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-              <FormattedMessage id="signup.passwordLabel" />
+              {t("signup.passwordLabel")}
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="password"
               type="password"
-              placeholder="Password"
+              placeholder={t("signup.passwordLabel")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -150,13 +156,13 @@ const SignUp: React.FC = () => {
           </div>
           <div className="mb-6">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
-              <FormattedMessage id="signup.confirmPasswordLabel" />
+              {t("signup.confirmPasswordLabel")}
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="confirmPassword"
               type="password"
-              placeholder="Confirm Password"
+              placeholder={t("signup.confirmPasswordLabel")}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -168,18 +174,18 @@ const SignUp: React.FC = () => {
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit"
             >
-              <FormattedMessage id="signup.submitButton" />
+              {t("signup.submitButton")}
             </button>
           </div>
           <div className="mt-4 text-center">
             <p className="text-gray-600 mb-2">
-              <FormattedMessage id="signup.loginText" />{' '}
+            {t("signup.loginText")}{' '}
               <Link to="/login" className="text-blue-500 hover:text-blue-700 font-bold">
-                <FormattedMessage id="signup.loginLink" />
+                {t("signup.loginLink")}
               </Link>
             </p>
             <div className="border-t border-gray-300 pt-4">
-              <p className="text-gray-600 mb-2 pb-1">or</p>
+              <p className="text-gray-600 mb-2 pb-1">{t("login.or")}</p>
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleFailure}

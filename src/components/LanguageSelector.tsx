@@ -1,27 +1,23 @@
 import React from 'react';
-import { useIntl } from 'react-intl';
+import { useTranslation } from 'react-i18next';
 
 const LanguageSelector: React.FC = () => {
-  const intl = useIntl();
+  const { i18n, t } = useTranslation();
   const [isOpen, setIsOpen] = React.useState(false);
 
   const languages = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'en', name: t('English'), flag: '🇺🇸' },
+    { code: 'es', name: t('Español'), flag: '🇪🇸' },
   ];
 
-  const currentLanguage = languages.find(
-    (lang) => lang.code === intl.locale
-  );
+  const currentLanguage = languages.find((lang) => lang.code === i18n.language);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
   const handleLanguageChange = (langCode: string) => {
-    // Dispatch an action or call a function to change the language
-    // For example, using Redux:
-    // dispatch(changeLanguage(langCode));
+    i18n.changeLanguage(langCode);
     setIsOpen(false);
   };
 

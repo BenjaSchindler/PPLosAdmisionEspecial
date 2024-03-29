@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { googleLogout } from '@react-oauth/google';
 import LanguageSelector from './LanguageSelector';
+import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,6 +12,8 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem('token'); // Check if the user is logged in
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  const { t }: { t: TFunction } = useTranslation();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -131,13 +135,13 @@ const Navbar: React.FC = () => {
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        Profile
+                        {t('navbar.profile')}
                       </Link>
                       <button
                         onClick={handleSignOut}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                       >
-                        Sign Out
+                        {t('navbar.signout')}
                       </button>
                     </div>
                   )}
@@ -149,14 +153,14 @@ const Navbar: React.FC = () => {
                     className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                     style={{ fontFamily: 'Orbitron, sans-serif' }}
                   >
-                    Log In
+                    {t('navbar.login')}
                   </Link>
                   <Link
                     to="/signup"
                     className="ml-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     style={{ fontFamily: 'Orbitron, sans-serif' }}
                   >
-                    Sign Up
+                    {t('navbar.signup')}
                   </Link>
                 </>
               )}
@@ -265,7 +269,7 @@ const Navbar: React.FC = () => {
                       className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
                       onClick={closeMenu}
                     >
-                      Profile
+                      {t('navbar.profile')}
                     </Link>
                   </div>
                 </div>
@@ -273,7 +277,7 @@ const Navbar: React.FC = () => {
                   onClick={handleSignOut}
                   className="ml-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
-                  Sign Out
+                  {t('navbar.signout')}
                 </button>
               </>
             ) : (
@@ -283,14 +287,14 @@ const Navbar: React.FC = () => {
                     className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
                     onClick={closeMenu}
                   >
-                    Log In
+                    {t('navbar.login')}
                   </Link>
                   <Link
                     to="/signup"
                     className="ml-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     onClick={closeMenu}
                   >
-                    Sign Up
+                    {t('navbar.signup')}
                   </Link>
                 </>
               )}

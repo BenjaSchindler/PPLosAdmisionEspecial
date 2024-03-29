@@ -1,6 +1,7 @@
 import React, { useRef } from 'react'
 import { Parallax, ParallaxLayer, IParallax } from '@react-spring/parallax'
-import { FormattedMessage } from 'react-intl';
+import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 import Typist from 'react-typist';
 
 const url = (name: string, wrap = false) =>
@@ -8,6 +9,7 @@ const url = (name: string, wrap = false) =>
 
 const Home: React.FC = () => {
   const parallax = useRef<IParallax>(null!);
+  const { t }: { t: TFunction } = useTranslation();
 
   return (
     <div style={{ width: '100%', height: '100%', background: '#253237' }}>
@@ -93,9 +95,8 @@ const Home: React.FC = () => {
          <Typist cursor={{ show: false }} avgTypingDelay={40}>
         <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>
           <Typist.Delay ms={1000} />
-          <span className="typing-text">Vuelve realidad tus proyectos gracias a la IA generativa</span>
+          <span className="typing-text">{t('home.title1')}</span>
           <span className="blinking-dot">.</span>
-          <FormattedMessage id="home.title1" />
         </h1>
       </Typist>
       <img
@@ -117,8 +118,8 @@ const Home: React.FC = () => {
           }}
         >
           <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
-          <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>BENJA ALÉRGICO A LA PALA
-          <FormattedMessage id="home.title2" />
+          <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>
+            {t('home.title2')}
           </h1>
           <img src={url('bash')} style={{ width: '40%', margin: 'auto' }} />
           </div>
@@ -136,7 +137,7 @@ const Home: React.FC = () => {
         >
           <div style={{ position: 'absolute', textAlign: 'center', width: '100%', top: '50%', transform: 'translateY(-50%)' }}>
             <h1 className="text-4xl font-bold mb-4" style={{ fontFamily: 'Orbitron, sans-serif', color: '#FFFFFF' }}>
-              <FormattedMessage id="home.title3" />
+              {t('home.title3')}
             </h1>
             <img src={url('server')} style={{ width: '20%', margin: 'auto' }} />
           </div>
