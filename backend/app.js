@@ -7,7 +7,9 @@ const { OAuth2Client } = require('google-auth-library');
 const multer = require('multer');
 const path = require('path');
 require('dotenv').config();
-
+const fileRoutes = require('./fileRoutes');
+const connectDB = require('./db');
+const File = require('./fileModel');
 
 const secretKey = process.env.SECRET_KEY;
 
@@ -16,7 +18,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: String,
-  photoURL: String, // Add the photoURL field
+  photoURL: String,
 });
 
 // Create an instance of the Express application
@@ -28,16 +30,8 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost/MyApp', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
 // Create the User model
 const User = mongoose.model('User', userSchema);
-
-
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClient = new OAuth2Client(googleClientId);
@@ -78,9 +72,10 @@ app.post('/Signup', async (req, res) => {
       message: 'User registered successfully',
       token,
       user: {
+        _id: newUser._id, // Include the user ID in the response
         username: newUser.username,
         email: newUser.email,
-        photoURL: newUser.photoURL, // Use newUser.photoURL instead of user.photoURL
+        photoURL: newUser.photoURL,
       },
     });
   } catch (error) {
@@ -113,9 +108,10 @@ app.post('/Login', async (req, res) => {
     res.status(200).json({
       token,
       user: {
+        _id: user._id.toString(), // Include the user ID as a string in the response
         username: user.username,
         email: user.email,
-        photoURL: user.photoURL, // Include the photoURL in the response
+        photoURL: user.photoURL,
       },
     });
   } catch (error) {
@@ -172,6 +168,7 @@ app.post('/googleLogin', async (req, res) => {
     res.status(200).json({
       token,
       user: {
+        _id: user._id.toString(), // Include the user ID as a string in the response
         username,
         email: user.email,
         photoURL,
@@ -182,7 +179,6 @@ app.post('/googleLogin', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 // Protected route that requires authentication
 app.get('/protected', authenticateToken, (req, res) => {
@@ -257,12 +253,59 @@ app.post('/uploadProfilePhoto', authenticateToken, upload.single('photo'), async
       { new: true }
     );
 
-    res.status(200).json({ photoURL: user.photoURL });
+    // Save the file metadata in the FileDB database
+    const newFile = new File({
+      filename: req.file.filename,
+      path: req.file.path,
+      uploadedBy: userId,
+    });
+
+    await newFile.save();
+
+    // Send the updated user data back to the frontend
+    res.status(200).json({
+      user: {
+        username: user.username,
+        email: user.email,
+        photoURL: user.photoURL,
+      },
+    });
   } catch (error) {
     console.error('Error uploading profile photo:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+app.post('/uploadGroupFile', authenticateToken, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const userId = req.user.userId;
+    const groupId = req.body.groupId;
+
+    // Save the file metadata in the FileDB database
+    const newFile = new File({
+      filename: req.file.filename,
+      path: req.file.path,
+      uploadedBy: userId,
+      groupId: groupId,
+    });
+
+    await newFile.save();
+
+    res.status(201).json({ message: 'File uploaded successfully' });
+  } catch (error) {
+    console.error('Error uploading group file:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.use('/api', fileRoutes);
+connectDB();
+
 
 // Start the server
 app.listen(8080, () => {

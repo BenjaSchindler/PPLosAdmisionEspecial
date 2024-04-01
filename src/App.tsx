@@ -9,6 +9,7 @@ import Navbar from './components/Navbar';
 import Profile from './pages/Profile';
 import { Parallax, ParallaxLayer, IParallax } from '@react-spring/parallax';
 import './App.css'; // Importa el archivo de estilos CSS si es necesario
+import Blitz from './pages/Blitz';
 
 const App: React.FC = () => {
   const parallax = useRef<IParallax>(null!);
@@ -24,6 +25,7 @@ const App: React.FC = () => {
             <Route path="/Login" element={<Login />} />
             <Route path="/Signup" element={<Signup />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/Blitz" element={<Blitz />} />
           </Routes>
         </div>
       </Router>

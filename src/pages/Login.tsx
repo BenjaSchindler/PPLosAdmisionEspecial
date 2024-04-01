@@ -16,25 +16,23 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
       const response = await axios.post("http://localhost:8080/Login", {
         usernameOrEmail,
         password,
       });
-
       if (response.data.token) {
         // Store the token and user information in localStorage
         localStorage.setItem("token", response.data.token);
         localStorage.setItem(
           "user",
           JSON.stringify({
+            _id: response.data.user._id, // Include the user ID
             username: response.data.user.username,
             email: response.data.user.email,
             photoURL: response.data.user.photoURL,
           })
         );
-
         // Navigate to home page or dashboard upon successful login
         navigate("/");
       } else {
@@ -46,25 +44,24 @@ const Login: React.FC = () => {
       setLoginError("An error occurred. Please try again.");
     }
   };
-
+  
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
       const res = await axios.post("http://localhost:8080/googleLogin", {
         googleToken: credentialResponse.credential,
       });
-
       if (res.data.token) {
         // Store the token and user information in localStorage
         localStorage.setItem("token", res.data.token);
         localStorage.setItem(
           "user",
           JSON.stringify({
+            _id: res.data.user._id, // Include the user ID
             username: res.data.user.username,
             email: res.data.user.email,
             photoURL: res.data.user.photoURL,
           })
         );
-
         // Navigate to home page or dashboard upon successful login
         navigate("/");
       } else {

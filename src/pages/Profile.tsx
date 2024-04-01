@@ -8,6 +8,7 @@ const Profile: React.FC = () => {
 
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+  
     if (file) {
       const formData = new FormData();
       formData.append('photo', file);
@@ -20,10 +21,10 @@ const Profile: React.FC = () => {
           },
         });
   
-        if (response.data.photoURL) {
-          const updatedUser = { ...user, photoURL: response.data.photoURL };
-          setUser(updatedUser);
-          localStorage.setItem('user', JSON.stringify(updatedUser));
+        if (response.data.user) {
+          // Update the local user state and local storage with the updated user data
+          setUser(response.data.user);
+          localStorage.setItem('user', JSON.stringify(response.data.user));
         }
       } catch (error) {
         console.error('Error uploading profile photo:', error);

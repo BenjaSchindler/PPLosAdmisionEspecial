@@ -72,27 +72,29 @@ const SignUp: React.FC = () => {
   
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      const res = await axios.post('http://localhost:8080/googleLogin', {
+      const res = await axios.post("http://localhost:8080/googleLogin", {
         googleToken: credentialResponse.credential,
       });
-  
       if (res.data.token) {
         // Store the token and user information in localStorage
-        localStorage.setItem('token', res.data.token);
-        localStorage.setItem('user', JSON.stringify({
-          username: res.data.user.username,
-          email: res.data.user.email,
-          photoURL: res.data.user.photoURL,
-        }));
-  
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            _id: res.data.user._id, // Include the user ID
+            username: res.data.user.username,
+            email: res.data.user.email,
+            photoURL: res.data.user.photoURL,
+          })
+        );
         // Navigate to home page or dashboard upon successful login
-        navigate('/');
+        navigate("/");
       } else {
         // Handle login error
-        console.error('Google login failed');
+        console.error("Google login failed");
       }
     } catch (error) {
-      console.error('Error logging in with Google:', error);
+      console.error("Error logging in with Google:", error);
     }
   };
 
