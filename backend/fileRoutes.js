@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const File = require('./fileModel');
+const fs = require('fs'); 
 
 
 
@@ -57,6 +58,32 @@ router.get('/files/group/:groupId', async (req, res) => {
     res.status(200).json(files);
   } catch (error) {
     console.error('Error retrieving files:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Route for deleting a file
+router.delete('/files/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the file by ID
+    const file = await File.findById(id);
+
+    if (!file) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    // Delete the file from the database
+    await File.findByIdAndDelete(id);
+
+    // Delete the file from the file system
+    const filePath = file.path;
+    fs.unlinkSync(filePath);
+
+    res.status(200).json({ message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting file:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

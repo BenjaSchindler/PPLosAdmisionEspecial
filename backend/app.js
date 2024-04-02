@@ -10,16 +10,9 @@ require('dotenv').config();
 const fileRoutes = require('./fileRoutes');
 const connectDB = require('./db');
 const File = require('./fileModel');
+const groupRoutes = require('./groupRoutes');
 
 const secretKey = process.env.SECRET_KEY;
-
-// Define the User schema
-const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  password: String,
-  photoURL: String,
-});
 
 // Create an instance of the Express application
 const app = express();
@@ -29,6 +22,14 @@ app.use(cors({
   origin: 'http://localhost:3000', 
 }));
 app.use(express.json());
+
+// Define the User schema
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  password: String,
+  photoURL: String,
+});
 
 // Create the User model
 const User = mongoose.model('User', userSchema);
@@ -304,8 +305,10 @@ app.post('/uploadGroupFile', authenticateToken, upload.single('file'), async (re
 });
 
 app.use('/api', fileRoutes);
+app.use('/api/groups', groupRoutes);
 connectDB();
 
+module.exports = { app, User };
 
 // Start the server
 app.listen(8080, () => {

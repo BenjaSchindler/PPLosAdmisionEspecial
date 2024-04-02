@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const User = require('./app').User;
+const Group = require('./groupModel');
 
 const fileSchema = new mongoose.Schema({
   filename: {
