@@ -21,10 +21,16 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get all groups
+// Get groups for a specific user
 router.get('/', async (req, res) => {
   try {
-    const groups = await Group.find().populate('members', 'username email');
+    const userId = req.query.userId;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    const groups = await Group.find({ members: userId }).populate('members', 'username email');
     res.json(groups);
   } catch (error) {
     console.error('Error retrieving groups:', error);
