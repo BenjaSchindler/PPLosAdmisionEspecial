@@ -5,22 +5,20 @@ const { User } = require('./app');
 
 // Create a new group
 router.post('/', async (req, res) => {
-    try {
-      const { groupId, groupName, members } = req.body;
-  
-      const group = new Group({
-        groupId,
-        groupName,
-        members,
-      });
-  
-      const savedGroup = await group.save();
-      console.log('Saved group:', savedGroup); // Add this line
-      res.status(201).json(savedGroup);
-    } catch (error) {
-      console.error('Error creating group:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
+  try {
+    const { groupName, userId } = req.body;
+
+    const group = new Group({
+      groupName,
+      members: [userId],
+    });
+
+    const savedGroup = await group.save();
+    res.status(201).json(savedGroup);
+  } catch (error) {
+    console.error('Error creating group:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Get all groups

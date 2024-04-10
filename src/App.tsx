@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Home from './pages/Home';
@@ -7,15 +7,16 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Navbar from './components/Navbar';
 import Profile from './pages/Profile';
-import { Parallax, ParallaxLayer, IParallax } from '@react-spring/parallax';
 import './App.css'; // Importa el archivo de estilos CSS si es necesario
 import Blitz from './pages/Blitz';
+import UserHome from './pages/UserHome';
 
 const App: React.FC = () => {
-  const parallax = useRef<IParallax>(null!);
+  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
+  console.log(googleClientId);
 
   return (
-    <GoogleOAuthProvider clientId="724740010868-5ig790ee5btbdtgfmifhu8dqi8gmjvj0.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId={googleClientId}>
       <Router>
         <div className="app-container">
           <Navbar />
@@ -26,6 +27,7 @@ const App: React.FC = () => {
             <Route path="/Signup" element={<Signup />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/Blitz" element={<Blitz />} />
+            <Route path="/UserHome" element={<UserHome />} />
           </Routes>
         </div>
       </Router>
