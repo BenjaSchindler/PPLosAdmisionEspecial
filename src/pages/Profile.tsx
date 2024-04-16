@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { googleLogout } from '@react-oauth/google';
+import { UserContext } from '../components/UserContext';
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
-
+  const { updateUserPhotoURL } = useLocation().state || {};
+  const { user, setUser } = useContext(UserContext);
+  
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
   
@@ -22,14 +25,31 @@ const Profile: React.FC = () => {
         });
   
         if (response.data.user) {
-          // Update the local user state and local storage with the updated user data
+          // Update the user information in the context and local storage
           setUser(response.data.user);
-          localStorage.setItem('user', JSON.stringify(response.data.user));
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+    
+          // Call the updateUserPhotoURL function from the Navbar component
+          if (updateUserPhotoURL) {
+            updateUserPhotoURL();
+          }
         }
       } catch (error) {
         console.error('Error uploading profile photo:', error);
       }
     }
+  };
+
+  const handleSignOut = () => {
+    // Remove the token and user information from localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // Perform Google logout
+    googleLogout();
+
+    // Redirect to the login page
+    navigate("/login");
   };
 
   if (!user || !user.email) {
@@ -78,6 +98,12 @@ const Profile: React.FC = () => {
           </div>
           <h2 className="text-xl font-bold text-white mb-2">{user.username}</h2>
           <p className="text-gray-300 mb-4">{user.email}</p>
+          <button
+            onClick={handleSignOut}
+            className="mt-4 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none"
+          >
+            Sign Out
+          </button>
         </div>
       </div>
     </div>
