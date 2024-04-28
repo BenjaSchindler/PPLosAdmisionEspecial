@@ -10,6 +10,9 @@ from langchain_openai import OpenAIEmbeddings
 
 
 
+APIKEY = os.getenv('OPENAI_API_KEY')
+if not APIKEY:
+    sys.exit("API key not found. Please set the OPENAI_API_KEY environment variable.")
 
 db = SQLDatabase.from_uri("sqlite:///Chinook.db")
 dialect = db.dialect
