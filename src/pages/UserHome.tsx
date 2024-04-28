@@ -77,9 +77,9 @@ const UserHome: React.FC = () => {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const userId = user._id;
-
-      console.log(userId)
-      console.log(groupName)
+  
+      console.log(userId);
+      console.log(groupName);
       const response = await axios.post(
         'http://localhost:8080/api/groups',
         {
@@ -91,7 +91,15 @@ const UserHome: React.FC = () => {
         }
       );
       console.log('Group created:', response.data);
+  
       // Fetch the updated list of groups after creating a new group
+      const updatedGroupsResponse = await axios.get(`http://localhost:8080/api/groups?userId=${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setGroups(updatedGroupsResponse.data);
+  
       // Clear the input field
       setGroupName('');
     } catch (error) {
@@ -100,51 +108,51 @@ const UserHome: React.FC = () => {
   };
 
   return (
-    <div className="mt-16 p-4">
-      <h1 className="text-2xl font-bold mb-4">Welcome to Your Dashboard</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white px-4 py-8">
+      <div className="max-w-4xl mx-auto mt-16"> {/* Add top margin here */}
+        <h1 className="text-4xl font-bold mb-8 text-center font-orbitron">Welcome to Your Dashboard</h1>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-2">Create a New Group</h2>
-        <div>
-          <input
-            type="text"
-            value={groupName}
-            onChange={(e) => setGroupName(e.target.value)}
-            placeholder="Enter group name"
-            className="border border-gray-300 rounded-md px-4 py-2 mr-2"
-          />
-          <button
-            onClick={handleCreateGroup}
-            className="bg-blue-500 hover:bg-blue-600 text-white rounded-md px-4 py-2"
-          >
-            Create Group
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-8">
-        <div>
-          <h2 className="text-xl font-bold mb-2">Your Groups</h2>
-          {/* Render the list of groups */}
-          <ul className="space-y-2">
-            {groups.map((group) => (
-              <li key={group._id} className="text-gray-800">
-                {group.groupName}
-              </li>
-            ))}
-          </ul>
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4 font-orbitron">Create a New Group</h2>
+          <div className="flex">
+            <input
+              type="text"
+              value={groupName}
+              onChange={(e) => setGroupName(e.target.value)}
+              placeholder="Enter group name"
+              className="border border-gray-600 bg-gray-800 rounded-l-md px-4 py-2 w-full text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
+            />
+            <button
+              onClick={handleCreateGroup}
+              className="bg-blue-600 hover:bg-blue-700 rounded-r-md px-6 py-2 text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
+            >
+              Create
+            </button>
+          </div>
         </div>
 
-        <div>
-          <h2 className="text-xl font-bold mb-2">Your Files</h2>
-          {/* Render the list of personal files */}
-          <ul className="space-y-2">
-            {files.map((file) => (
-              <li key={file._id} className="text-gray-800">
-                {file.filename}
-              </li>
-            ))}
-          </ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold mb-4 font-orbitron">Your Groups</h2>
+            <ul className="space-y-4">
+              {groups.map((group) => (
+                <li key={group._id} className="bg-gray-700 rounded-md px-4 py-2 font-orbitron">
+                  {group.groupName}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold mb-4 font-orbitron">Your Files</h2>
+            <ul className="space-y-4">
+              {files.map((file) => (
+                <li key={file._id} className="bg-gray-700 rounded-md px-4 py-2 font-orbitron">
+                  {file.filename}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </div>

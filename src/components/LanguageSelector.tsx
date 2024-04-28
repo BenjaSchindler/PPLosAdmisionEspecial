@@ -42,7 +42,7 @@ const LanguageSelector: React.FC = () => {
         className="flex items-center text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
       >
         <span className="mr-1">{currentLanguage?.flag}</span>
-        <span>{currentLanguage?.name}</span>
+        <span className='font-orbitron'>{currentLanguage?.name}</span>
       </button>
       {isOpen && (
         <div

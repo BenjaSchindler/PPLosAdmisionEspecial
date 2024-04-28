@@ -45,6 +45,9 @@ const Profile: React.FC = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
+    // Clear the user state in the UserContext
+    setUser(null);
+
     // Perform Google logout
     googleLogout();
 
@@ -96,11 +99,11 @@ const Profile: React.FC = () => {
               className="hidden"
             />
           </div>
-          <h2 className="text-xl font-bold text-white mb-2">{user.username}</h2>
-          <p className="text-gray-300 mb-4">{user.email}</p>
+          <h2 className="text-xl font-bold text-white mb-2 font-orbitron">{user.username}</h2>
+          <p className="text-gray-300 mb-4 font-orbitron">{user.email}</p>
           <button
             onClick={handleSignOut}
-            className="mt-4 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none"
+            className="mt-4 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none font-orbitron"
           >
             Sign Out
           </button>

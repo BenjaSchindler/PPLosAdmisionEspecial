@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import axios, { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import { UserContext } from "../components/UserContext";
 
 interface ErrorResponse {
   error: string;
@@ -17,6 +18,7 @@ const SignUp: React.FC = () => {
   const [passwordError, setPasswordError] = useState("");
   const [registrationError, setRegistrationError] = useState("");
   const navigate = useNavigate();
+  const { setUser } = useContext(UserContext);
 
   const { t }: { t: TFunction } = useTranslation();
 
@@ -40,7 +42,7 @@ const SignUp: React.FC = () => {
 
       if (response.status === 201) {
         const { token, user } = response.data;
-
+        setUser(user);
         // Store the token and user information in localStorage
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
@@ -119,13 +121,13 @@ const SignUp: React.FC = () => {
         >
           <div className="mb-4">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-gray-700 text-sm font-bold mb-2 font-orbitron"
               htmlFor="username"
             >
               {t("signup.usernameLabel")}
             </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 sm:text-base text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded w-full py-2 px-3 sm:text-base text-gray-700 leading-tight focus:outline-none focus:shadow-outline font-orbitron"
               id="username"
               type="text"
               placeholder={t("signup.usernameLabel")}
@@ -136,13 +138,13 @@ const SignUp: React.FC = () => {
           </div>
           <div className="mb-4">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-gray-700 text-sm font-bold mb-2 font-orbitron"
               htmlFor="email"
             >
               {t("signup.emailLabel")}
             </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 sm:text-base text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded w-full py-2 px-3 sm:text-base text-gray-700 leading-tight focus:outline-none focus:shadow-outline font-orbitron"
               id="email"
               type="email"
               placeholder={t("signup.emailLabel")}
@@ -153,13 +155,13 @@ const SignUp: React.FC = () => {
           </div>
           <div className="mb-4">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-gray-700 text-sm font-bold mb-2 font-orbitron"
               htmlFor="password"
             >
               {t("signup.passwordLabel")}
             </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 sm:text-base text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded w-full py-2 px-3 sm:text-base text-gray-700 leading-tight focus:outline-none focus:shadow-outline font-orbitron"
               id="password"
               type="password"
               placeholder={t("signup.passwordLabel")}
@@ -170,13 +172,13 @@ const SignUp: React.FC = () => {
           </div>
           <div className="mb-6">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-gray-700 text-sm font-bold mb-2 font-orbitron"
               htmlFor="confirmPassword"
             >
               {t("signup.confirmPasswordLabel")}
             </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 sm:text-base text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded w-full py-2 px-3 sm:text-base text-gray-700 leading-tight focus:outline-none focus:shadow-outline font-orbitron"
               id="confirmPassword"
               type="password"
               placeholder={t("signup.confirmPasswordLabel")}
@@ -190,18 +192,18 @@ const SignUp: React.FC = () => {
           </div>
           <div className="flex items-center justify-between">
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 sm:text-base sm:py-3 sm:px-6 rounded focus:outline-none focus:shadow-outline"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 sm:text-base sm:py-3 sm:px-6 rounded focus:outline-none focus:shadow-outline font-orbitron"
               type="submit"
             >
               {t("signup.submitButton")}
             </button>
           </div>
           <div className="mt-4 text-center">
-            <p className="text-gray-600 mb-2">
+            <p className="text-gray-600 mb-2 font-orbitron">
               {t("signup.loginText")}{" "}
               <Link
                 to="/login"
-                className="text-blue-500 hover:text-blue-700 font-bold"
+                className="text-blue-500 hover:text-blue-700 font-bold font-orbitron"
               >
                 {t("signup.loginLink")}
               </Link>

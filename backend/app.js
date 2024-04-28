@@ -73,7 +73,7 @@ app.post('/Signup', async (req, res) => {
       message: 'User registered successfully',
       token,
       user: {
-        _id: newUser._id, // Include the user ID in the response
+        _id: newUser._id.toString(), // Include the user ID in the response
         username: newUser.username,
         email: newUser.email,
         photoURL: newUser.photoURL,
@@ -180,7 +180,6 @@ app.post('/googleLogin', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 // Protected route that requires authentication
 app.get('/protected', authenticateToken, (req, res) => {
   // Access the authenticated user's information from req.user

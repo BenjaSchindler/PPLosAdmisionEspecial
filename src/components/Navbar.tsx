@@ -234,26 +234,26 @@ const Navbar: React.FC = () => {
             Home
           </Link>
           <Link
-            to="/about"
+            to="/Blitz"
             className={`${
-              location.pathname === "/about"
+              location.pathname === "/Blitz"
                 ? "text-white bg-gray-900"
                 : "text-gray-300 hover:text-white"
             } block px-3 py-2 rounded-md text-base font-medium`}
             onClick={closeMenu}
           >
-            About
+            Blitz
           </Link>
           <Link
-            to="/contact"
+            to="/UserHome"
             className={`${
-              location.pathname === "/contact"
+              location.pathname === "/UserHome"
                 ? "text-white bg-gray-900"
                 : "text-gray-300 hover:text-white"
             } block px-3 py-2 rounded-md text-base font-medium`}
             onClick={closeMenu}
           >
-            Contact
+            UserHome
           </Link>
         </div>
         <div className="pt-4 pb-3 border-t border-gray-700">

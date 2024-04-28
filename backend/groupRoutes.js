@@ -11,6 +11,7 @@ router.post('/', async (req, res) => {
     const group = new Group({
       groupName,
       members: [userId],
+      admins: [userId], // Add the user as the first admin
     });
 
     const savedGroup = await group.save();

@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import { UserContext } from "../components/UserContext";
 
 const Login: React.FC = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
+  const { setUser } = useContext(UserContext);
 
   const { t }: { t: TFunction } = useTranslation();
 
@@ -50,6 +52,7 @@ const Login: React.FC = () => {
         googleToken: credentialResponse.credential,
       });
       if (res.data.token) {
+        setUser(res.data.user);
         // Store the token and user information in localStorage
         localStorage.setItem("token", res.data.token);
         localStorage.setItem(
@@ -93,13 +96,13 @@ const Login: React.FC = () => {
         >
           <div className="mb-4">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-gray-700 text-sm font-bold mb-2 font-orbitron"
               htmlFor="email"
             >
               {t("login.emailLabel")}
             </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 sm:text-base text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded w-full py-2 px-3 sm:text-base text-gray-700 leading-tight focus:outline-none focus:shadow-outline font-orbitron"
               id="Email or Username"
               type="Email or Username"
               placeholder={t("login.emailLabel")}
@@ -110,13 +113,13 @@ const Login: React.FC = () => {
           </div>
           <div className="mb-6">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-gray-700 text-sm font-bold mb-2 font-orbitron"
               htmlFor="password"
             >
               {t("login.passwordLabel")}
             </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 sm:text-base text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded w-full py-2 px-3 sm:text-base text-gray-700 leading-tight focus:outline-none focus:shadow-outline font-orbitron"
               id="password"
               type="password"
               placeholder={t("login.passwordLabel")}
@@ -130,25 +133,25 @@ const Login: React.FC = () => {
           )}
           <div className="flex items-center justify-between">
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 sm:text-base sm:py-3 sm:px-6 rounded focus:outline-none focus:shadow-outline"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 sm:text-base sm:py-3 sm:px-6 rounded focus:outline-none focus:shadow-outline font-orbitron"
               type="submit"
             >
               {t("login.submitButton")}
             </button>
           </div>
           <div className="mt-4 text-center">
-            <p className="text-gray-600 mb-2">
+            <p className="text-gray-600 mb-2 font-orbitron">
               {t("login.signupText")}{" "}
               <Link
                 to="/signup"
-                className="text-blue-500 hover:text-blue-700 font-bold"
+                className="text-blue-500 hover:text-blue-700 font-bold font-orbitron" 
               >
                 {t("login.signupLink")}
               </Link>
             </p>
 
             <div className="border-t border-gray-300 pt-4">
-              <p className="text-gray-600 mb-2 pb-1">{t("login.or")}</p>
+              <p className="text-gray-600 mb-2 pb-1 font-orbitron">{t("login.or")}</p>
               <div className="flex justify-center">
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
