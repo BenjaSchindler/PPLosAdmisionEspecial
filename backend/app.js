@@ -1,16 +1,18 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { OAuth2Client } = require('google-auth-library');
-const multer = require('multer');
-const path = require('path');
-require('dotenv').config();
-const fileRoutes = require('./fileRoutes');
-const connectDB = require('./db');
-const File = require('./fileModel');
-const groupRoutes = require('./groupRoutes');
+const express = require('express'); // Express for server
+const cors = require('cors'); // CORS for cross-origin requests
+const mongoose = require('mongoose'); // Mongoose for MongoDB
+const bcrypt = require('bcrypt'); // Bcrypt for password hashing
+const jwt = require('jsonwebtoken'); // JSON Web Tokens for authentication
+const { OAuth2Client } = require('google-auth-library'); // Google OAuth client
+const multer = require('multer'); // Multer for file upload handling
+const path = require('path'); // Path module for file paths
+require('dotenv').config(); // Load environment variables
+const fileRoutes = require('./fileRoutes'); // Import file routes
+const connectDB = require('./db'); // Connect to MongoDB
+const File = require('./fileModel'); // File model
+const groupRoutes = require('./groupRoutes'); // Group routes
+const { spawn } = require('child_process'); // Child process for running Python script
+
 
 const secretKey = process.env.SECRET_KEY;
 
@@ -34,6 +36,7 @@ const userSchema = new mongoose.Schema({
 // Create the User model
 const User = mongoose.model('User', userSchema);
 
+// Google OAuth client setup
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClient = new OAuth2Client(googleClientId);
 
@@ -85,6 +88,7 @@ app.post('/Signup', async (req, res) => {
   }
 });
 
+// User login route
 app.post('/Login', async (req, res) => {
   const { usernameOrEmail, password } = req.body;
 
@@ -130,6 +134,7 @@ async function verifyGoogleToken(token) {
   return payload;
 }
 
+// Google login route
 app.post('/googleLogin', async (req, res) => {
   const { googleToken } = req.body;
 
@@ -180,6 +185,7 @@ app.post('/googleLogin', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 // Protected route that requires authentication
 app.get('/protected', authenticateToken, (req, res) => {
   // Access the authenticated user's information from req.user
@@ -215,6 +221,7 @@ const storage = multer.diskStorage({
   },
 });
 
+// File upload filter for allowed file types
 const fileFilter = (req, file, cb) => {
   const allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png'];
   if (allowedFileTypes.includes(file.mimetype)) {
@@ -224,6 +231,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// Serve static files from the uploads directory
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 // Create the uploads directory if it doesn't exist
@@ -276,7 +284,7 @@ app.post('/uploadProfilePhoto', authenticateToken, upload.single('photo'), async
   }
 });
 
-
+// Route for uploading files to a group
 app.post('/uploadGroupFile', authenticateToken, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
@@ -303,10 +311,53 @@ app.post('/uploadGroupFile', authenticateToken, upload.single('file'), async (re
   }
 });
 
+// Route for asking questions via API
+app.post('/api/ask', (req, res) => {
+  const { question } = req.body;
+  
+  // Run your Python app with the question and get the answer
+  const answer = runPythonApp(question);
+  
+  answer.then((result) => {
+    res.json({ answer: result });
+  }).catch((error) => {
+    console.error('Error running Python app:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  });
+});
+
+// Function to run Python app asynchronously
+function runPythonApp(question) {
+  return new Promise((resolve, reject) => {
+    const pythonProcess = spawn('python', ['../AppConsultas/agent.py', question]);
+    
+    let output = '';
+    pythonProcess.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+    
+    pythonProcess.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+    });
+    
+    pythonProcess.on('close', (code) => {
+      if (code !== 0) {
+        reject(`Python process exited with code ${code}`);
+      } else {
+        resolve(output.trim());
+      }
+    });
+  });
+}
+
+// Include file and group routes
 app.use('/api', fileRoutes);
 app.use('/api/groups', groupRoutes);
+
+// Connect to MongoDB
 connectDB();
 
+// Export the app and User model for testing or external use
 module.exports = { app, User };
 
 // Start the server

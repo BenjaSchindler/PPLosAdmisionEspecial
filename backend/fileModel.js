@@ -1,7 +1,9 @@
+// Import the Mongoose library for MongoDB
 const mongoose = require('mongoose');
 const User = require('./app').User;
 const Group = require('./groupModel');
 
+// Define the schema for the File model
 const fileSchema = new mongoose.Schema({
   filename: {
     type: String,
@@ -26,6 +28,8 @@ const fileSchema = new mongoose.Schema({
   },
 });
 
+// Create the File model based on the schema
 const File = mongoose.model('File', fileSchema);
 
+// Export the File model for use in other modules
 module.exports = File;

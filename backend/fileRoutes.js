@@ -17,19 +17,20 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
+
 // Route for file upload
 router.post('/upload', upload.single('file'), async (req, res) => {
   try {
     const { originalname, path } = req.file;
-    const userId = req.body.userId;
-
+    const userId = req.body.userId; // Access the userId from the request body
+    
     const newFile = new File({
       filename: originalname,
       path: path,
       uploadedBy: userId,
-      groupId: null, // Set groupId to null if not used
     });
-
+    
     await newFile.save();
     res.status(201).json({ message: 'File uploaded successfully' });
   } catch (error) {

@@ -19,7 +19,10 @@ dialect = db.dialect
 table_names = db.get_usable_table_names()
 top_k = 1000
 
-question = input("What is you question: ")
+if len(sys.argv) < 2:
+    sys.exit("Please provide a question as a command-line argument.")
+
+question = sys.argv[1]
 
 llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
@@ -54,3 +57,4 @@ agent = create_sql_agent(
 )
 
 agent.invoke({"input": question})
+#print(agent_chain.run(input="how is the weather in wismar ?"))

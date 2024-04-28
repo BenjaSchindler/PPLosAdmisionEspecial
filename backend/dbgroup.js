@@ -1,5 +1,7 @@
+// Import the Mongoose library for MongoDB connection
 const mongoose = require('mongoose');
 
+// Define a function to connect to the 'GroupDB' database
 const connectDBgroups = () => {
   mongoose.connect('mongodb://localhost/GroupDB', {
     useNewUrlParser: true,
@@ -13,4 +15,5 @@ const connectDBgroups = () => {
   });
 };
 
+// Export the connectDBgroups function for use in other modules
 module.exports = connectDBgroups;
