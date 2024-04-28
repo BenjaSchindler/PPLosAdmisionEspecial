@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Define the schema for the Group model
 const groupSchema = new mongoose.Schema({
   groupId: {
     type: String,
@@ -28,6 +29,8 @@ const groupSchema = new mongoose.Schema({
   },
 });
 
+// Create the Group model based on the schema
 const Group = mongoose.model('Group', groupSchema);
 
+// Export the Group model for use in other modules
 module.exports = Group;

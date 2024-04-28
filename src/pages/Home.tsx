@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 import Typist from "react-typist";
 
+// Function to generate URL for images
 const url = (name: string, wrap = false) =>
   `${
     wrap ? "url(" : ""

@@ -1,5 +1,7 @@
+// Import the Mongoose library for MongoDB connection
 const mongoose = require('mongoose');
 
+// Define an asynchronous function to connect to databases
 const connectDB = async () => {
   try {
     await mongoose.connect('mongodb://localhost/MyApp');
@@ -13,4 +15,5 @@ const connectDB = async () => {
   }
 };
 
+// Export the connectDB function for use in other modules
 module.exports = connectDB;

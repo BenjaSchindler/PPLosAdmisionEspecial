@@ -4,13 +4,11 @@ import axios from 'axios';
 interface Group {
   _id: string;
   groupName: string;
-  // other group properties
 }
 
 interface File {
   _id: string;
   filename: string;
-  // other file properties
 }
 
 const UserHome: React.FC = () => {
