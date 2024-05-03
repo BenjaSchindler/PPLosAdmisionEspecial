@@ -80,14 +80,6 @@ const Navbar: React.FC = () => {
     return user?.username?.charAt(0).toUpperCase() || "";
   };
 
-  const [userPhoto, setUserPhoto] = useState(getUserPhoto());
-  const [userInitial, setUserInitial] = useState(getUserInitial());
-
-  useEffect(() => {
-    setUserPhoto(getUserPhoto());
-    setUserInitial(getUserInitial());
-  }, [user]);
-
   return (
     <nav className="bg-slate-950 shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -122,7 +114,7 @@ const Navbar: React.FC = () => {
                     }}
                   >
                     <button className="flex items-center focus:outline-none">
-                      {userPhoto ? (
+                      {getUserPhoto() ? (
                         <img
                           className="h-8 w-8 rounded-full"
                           src={getUserPhoto()}

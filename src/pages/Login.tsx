@@ -23,21 +23,12 @@ const Login: React.FC = () => {
         password,
       });
       if (response.data.token) {
-        // Store the token and user information in localStorage
+        // Update the user state in the UserContext with the received user data
+        setUser(response.data.user);
         localStorage.setItem("token", response.data.token);
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            _id: response.data.user._id, // Include the user ID
-            username: response.data.user.username,
-            email: response.data.user.email,
-            photoURL: response.data.user.photoURL,
-          })
-        );
-        // Navigate to home page or dashboard upon successful login
+        localStorage.setItem("user", JSON.stringify(response.data.user));
         navigate("/");
       } else {
-        // Handle login error
         setLoginError("Invalid credentials");
       }
     } catch (error) {

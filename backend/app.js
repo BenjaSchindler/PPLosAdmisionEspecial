@@ -113,10 +113,10 @@ app.post('/Login', async (req, res) => {
     res.status(200).json({
       token,
       user: {
-        _id: user._id.toString(), // Include the user ID as a string in the response
+        _id: user._id.toString(),
         username: user.username,
         email: user.email,
-        photoURL: user.photoURL,
+        photoURL: user.photoURL, // Include the photo URL in the response
       },
     });
   } catch (error) {
@@ -314,10 +314,11 @@ app.post('/uploadGroupFile', authenticateToken, upload.single('file'), async (re
 // Route for asking questions via API
 app.post('/api/ask', (req, res) => {
   const { question } = req.body;
-  
+  console.log("Received question in backend:", question); // Agregar este console.log
+
   // Run your Python app with the question and get the answer
   const answer = runPythonApp(question);
-  
+
   answer.then((result) => {
     res.json({ answer: result });
   }).catch((error) => {
@@ -329,22 +330,30 @@ app.post('/api/ask', (req, res) => {
 // Function to run Python app asynchronously
 function runPythonApp(question) {
   return new Promise((resolve, reject) => {
-    const pythonProcess = spawn('python', ['../AppConsultas/agent.py', question]);
-    
+    // Activate the virtual environment
+    const activateEnv = 'source ../AppConsultas/SQLagent-env/bin/activate';
+
+    // Run the Python app
+    const pythonProcess = spawn('python', ['../AppConsultas/agent.py', question], {
+      shell: true,
+      stdio: 'pipe',
+      env: { ...process.env, PATH: `../AppConsultas/SQLagent-env/bin:${process.env.PATH}` },
+    });
+
     let output = '';
     pythonProcess.stdout.on('data', (data) => {
       output += data.toString();
     });
-    
+
     pythonProcess.stderr.on('data', (data) => {
       console.error(`stderr: ${data}`);
     });
-    
+
     pythonProcess.on('close', (code) => {
       if (code !== 0) {
         reject(`Python process exited with code ${code}`);
       } else {
-        resolve(output.trim());
+        resolve({ output: output.trim() }); // Resolve with an object containing the output
       }
     });
   });
@@ -353,6 +362,8 @@ function runPythonApp(question) {
 // Include file and group routes
 app.use('/api', fileRoutes);
 app.use('/api/groups', groupRoutes);
+
+
 
 // Connect to MongoDB
 connectDB();

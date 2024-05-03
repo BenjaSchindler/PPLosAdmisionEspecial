@@ -18,6 +18,12 @@
 .env.test.local
 .env.production.local
 
+# Ignore .env files in the root directory
+.env
+
+# Ignore .env files in the backend directory
+/backend/.env
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
