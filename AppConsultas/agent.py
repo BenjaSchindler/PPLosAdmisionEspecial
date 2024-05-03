@@ -7,14 +7,14 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.example_selectors import SemanticSimilarityExampleSelector
 from langchain_openai import OpenAIEmbeddings
 
-
-
-
 APIKEY = os.getenv('OPENAI_API_KEY')
+
 if not APIKEY:
     sys.exit("API key not found. Please set the OPENAI_API_KEY environment variable.")
 
-db = SQLDatabase.from_uri("sqlite:///Chinook.db")
+db_path = os.path.join(os.path.dirname(__file__), 'Chinook.db')
+db = SQLDatabase.from_uri(f"sqlite:///{db_path}")
+
 dialect = db.dialect
 table_names = db.get_usable_table_names()
 top_k = 1000
@@ -23,10 +23,14 @@ if len(sys.argv) < 2:
     sys.exit("Please provide a question as a command-line argument.")
 
 question = sys.argv[1]
+print(f"Received question in Python: {question}")  # Agregar este print
+
+if not question.strip():
+    result = "Please enter a valid question."
+    print(result)
+    sys.exit(0)
 
 llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
-
-
 
 system = """You are an agent designed to interact with a SQL database.
 Given an input question, create a syntactically correct {dialect} query to run, then look at the results of the query and return the answer.
@@ -35,17 +39,10 @@ You can order the results by a relevant column to return the most interesting ex
 You have access to tools for interacting with the database.
 Only use the given tools. Only use the information returned by the tools to construct your final answer.
 You MUST double check your query before executing it. If you get an error while executing a query, rewrite the query and try again.
-
 DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
-
-If you need to filter on a proper noun, you must ALWAYS first look up the filter value using the "search_proper_nouns" tool! 
-
+If you need to filter on a proper noun, you must ALWAYS first look up the filter value using the "search_proper_nouns" tool!
 You have access to the following tables: {table_names}
-
 If the question does not seem related to the database, just return "I don't know" as the answer."""
-
-
-
 
 agent = create_sql_agent(
     llm=llm,
@@ -56,5 +53,6 @@ agent = create_sql_agent(
     system=system
 )
 
-agent.invoke({"input": question})
-#print(agent_chain.run(input="how is the weather in wismar ?"))
+result = agent.invoke({"input": question})
+result = result['output']
+print(result)  # Print the result
