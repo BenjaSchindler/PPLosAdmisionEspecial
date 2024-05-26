@@ -19,20 +19,16 @@ dialect = db.dialect
 table_names = db.get_usable_table_names()
 top_k = 1000
 
-if len(sys.argv) < 2:
-    sys.exit("Please provide a question as a command-line argument.")
 
-question = sys.argv[1]
-print(f"Received question in Python: {question}")  # Agregar este print
+question = input("What is you question: ")
 
-if not question.strip():
-    result = "Please enter a valid question."
-    print(result)
-    sys.exit(0)
 
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
-system = """You are an agent designed to interact with a SQL database.
+
+llm = ChatOpenAI(model="gpt-4o", temperature=0)
+
+"""
+system = You are an agent designed to interact with a SQL database.
 Given an input question, create a syntactically correct {dialect} query to run, then look at the results of the query and return the answer.
 Unless the user specifies a specific number of examples they wish to obtain, always limit your query to at most {top_k} results.
 You can order the results by a relevant column to return the most interesting examples in the database.
@@ -43,6 +39,20 @@ DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the databa
 If you need to filter on a proper noun, you must ALWAYS first look up the filter value using the "search_proper_nouns" tool!
 You have access to the following tables: {table_names}
 If the question does not seem related to the database, just return "I don't know" as the answer."""
+
+
+system = f"""Eres un agente diseñado para interactuar con una base de datos SQL.
+Dada una pregunta de entrada, crea una consulta {dialect} sintácticamente correcta para ejecutar, luego revisa los resultados de la consulta y devuelve la respuesta.
+A menos que el usuario especifique un número específico de ejemplos que desea obtener, siempre limita tu consulta a un máximo de {top_k} resultados.
+Puedes ordenar los resultados por una columna relevante para devolver los ejemplos más interesantes en la base de datos.
+Tienes acceso a herramientas para interactuar con la base de datos.
+Solo usa las herramientas proporcionadas. Solo usa la información devuelta por las herramientas para construir tu respuesta final.
+DEBES verificar tu consulta antes de ejecutarla. Si obtienes un error al ejecutar una consulta, reescribe la consulta e inténtalo de nuevo.
+NO hagas ninguna declaración DML (INSERT, UPDATE, DELETE, DROP, etc.) en la base de datos.
+Si necesitas filtrar un nombre propio, ¡debes SIEMPRE primero buscar el valor del filtro usando la herramienta "search_proper_nouns"!
+Tienes acceso a las siguientes tablas: {table_names}
+Si la pregunta no parece estar relacionada con la base de datos, simplemente devuelve "No lo sé" como respuesta."""
+
 
 agent = create_sql_agent(
     llm=llm,

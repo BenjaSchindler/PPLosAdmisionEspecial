@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { googleLogout } from '@react-oauth/google';
@@ -8,14 +8,14 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const { updateUserPhotoURL } = useLocation().state || {};
   const { user, setUser } = useContext(UserContext);
-  
+
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-  
+
     if (file) {
       const formData = new FormData();
       formData.append('photo', file);
-  
+
       try {
         const response = await axios.post('http://localhost:8080/uploadProfilePhoto', formData, {
           headers: {
@@ -23,12 +23,12 @@ const Profile: React.FC = () => {
             Authorization: localStorage.getItem('token'),
           },
         });
-  
+
         if (response.data.user) {
           // Update the user information in the context and local storage
           setUser(response.data.user);
           localStorage.setItem("user", JSON.stringify(response.data.user));
-    
+
           // Call the updateUserPhotoURL function from the Navbar component
           if (updateUserPhotoURL) {
             updateUserPhotoURL();
@@ -61,20 +61,20 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="flex justify-center items-center h-screen bg-slate-900">
-      <div className="bg-slate-950 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900">
+      <div className="bg-slate-800 shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4 w-full max-w-md">
         <div className="flex flex-col items-center">
           <div className="relative">
             {user.photoURL ? (
-              <img src={user.photoURL} alt="User" className="w-32 h-32 rounded-full mb-4" />
+              <img src={user.photoURL} alt="User" className="w-32 h-32 rounded-full mb-4 shadow-md" />
             ) : (
-              <div className="w-32 h-32 rounded-full bg-gray-300 mb-4 flex items-center justify-center">
+              <div className="w-32 h-32 rounded-full bg-gray-300 mb-4 flex items-center justify-center shadow-md">
                 <span className="text-4xl text-white font-bold uppercase">{user.username.charAt(0)}</span>
               </div>
             )}
             <label
               htmlFor="photo-upload"
-              className="absolute bottom-0 right-0 p-2 bg-slate-800 rounded-full cursor-pointer"
+              className="absolute bottom-0 right-0 p-2 bg-purple-700 rounded-full cursor-pointer hover:bg-purple-600"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -99,11 +99,11 @@ const Profile: React.FC = () => {
               className="hidden"
             />
           </div>
-          <h2 className="text-xl font-bold text-white mb-2 font-orbitron">{user.username}</h2>
-          <p className="text-gray-300 mb-4 font-orbitron">{user.email}</p>
+          <h2 className="text-2xl font-bold text-white mb-2">{user.username}</h2>
+          <p className="text-gray-400 mb-4">{user.email}</p>
           <button
             onClick={handleSignOut}
-            className="mt-4 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none font-orbitron"
+            className="mt-4 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-600 focus:outline-none"
           >
             Sign Out
           </button>

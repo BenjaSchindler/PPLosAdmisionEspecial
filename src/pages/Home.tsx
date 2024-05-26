@@ -209,15 +209,17 @@ const Home: React.FC = () => {
             alignItems: "center",
             justifyContent: "center",
           }}
-          onClick={() => parallax.current.scrollTo(0)}
         >
-          <div
+          <a
+            href="/blitz"
             style={{
               position: "absolute",
               textAlign: "center",
               width: "100%",
               top: "50%",
               transform: "translateY(-50%)",
+              textDecoration: "none",
+              color: "inherit",
             }}
           >
             <h1
@@ -227,7 +229,7 @@ const Home: React.FC = () => {
               {t("home.title3")}
             </h1>
             <img src={url("server")} style={{ width: "20%", margin: "auto" }} />
-          </div>
+          </a>
         </ParallaxLayer>
       </Parallax>{" "}
       {/* Add the closing tag for Parallax */}
