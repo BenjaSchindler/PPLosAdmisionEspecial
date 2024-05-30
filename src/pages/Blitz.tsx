@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Oval } from 'react-loader-spinner';
 import { FaChevronDown } from 'react-icons/fa';
-import { Collapse } from 'react-collapse';
 
 const Blitz: React.FC = () => {
     const [question, setQuestion] = useState<string>('');
@@ -31,6 +29,7 @@ const Blitz: React.FC = () => {
         setLoading(true);
 
         try {
+            console.log('Selected option:', resultOption); // Log the selected option
             const response = await fetch('http://localhost:5001/api/ask', {
                 method: 'POST',
                 headers: {
@@ -39,11 +38,14 @@ const Blitz: React.FC = () => {
                 body: JSON.stringify({ question, resultOption }),
             });
 
+            console.log('Request payload:', { question, resultOption }); // Log the request payload
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
 
             const data = await response.json();
+            console.log('Response data:', data); // Log the response data
             const botMessage = { sender: 'bot', text: data.answer || 'No answer received' };
             setMessages([...messages, userMessage, botMessage]);
         } catch (error) {
@@ -81,7 +83,7 @@ const Blitz: React.FC = () => {
                 >
                     Options <FaChevronDown />
                 </button>
-                <Collapse isOpened={showOptions}>
+                {showOptions && (
                     <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg">
                         <div
                             className="py-2 px-4 hover:bg-gray-100 cursor-pointer"
@@ -96,7 +98,7 @@ const Blitz: React.FC = () => {
                             Show Everything
                         </div>
                     </div>
-                </Collapse>
+                )}
             </div>
             <div className="flex-1 overflow-y-auto p-4 pb-20"> {/* Added padding bottom to ensure space for the input box */}
                 <div className="max-w-2xl mx-auto space-y-4">
@@ -123,15 +125,10 @@ const Blitz: React.FC = () => {
                         </div>
                     ))}
                     {loading && (
-                        <div className="flex justify-center">
-                            <Oval
-                                height={50}
-                                width={50}
-                                color="#4fa94d"
-                                secondaryColor="#4fa94d"
-                                strokeWidth={2}
-                                strokeWidthSecondary={2}
-                            />
+                        <div className="flex justify-start">
+                            <div className="bg-gray-300 text-gray-900 rounded-lg p-3" style={{ maxWidth: '75%', margin: '10px' }}>
+                                <TypingIndicator />
+                            </div>
                         </div>
                     )}
                     <div ref={messagesEndRef} />
@@ -159,7 +156,12 @@ const Blitz: React.FC = () => {
     );
 };
 
+const TypingIndicator: React.FC = () => (
+    <div className="flex space-x-1.5">
+        <div className="w-2.5 h-2.5 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+        <div className="w-2.5 h-2.5 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+        <div className="w-2.5 h-2.5 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+    </div>
+);
+
 export default Blitz;
-
-
-

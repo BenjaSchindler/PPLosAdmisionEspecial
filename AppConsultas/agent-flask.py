@@ -12,14 +12,19 @@ CORS(app)  # Enable CORS
 def handle_question():
     data = request.get_json()
     question = data.get('question')
+    result_option = data.get('resultOption', 'output')  # Get the result option from the request
+
+    print('Received question:', question)  # Log the received question
+    print('Received result option:', result_option)  # Log the received result option
+
     if not question:
         return jsonify({"error": "Please provide a question"}), 400
 
     # Call your existing agent logic here
-    response = get_agent_response(question)  # This is your logic from agent.py
+    response = get_agent_response(question, result_option)  # Pass the result option to your agent logic
     return jsonify({"answer": response})
 
-def get_agent_response(question):
+def get_agent_response(question, result_option):
     # Logic from agent.py
     APIKEY = os.getenv('OPENAI_API_KEY')
 
@@ -57,7 +62,11 @@ def get_agent_response(question):
     )
 
     result = agent.invoke({"input": question})
-    return result['output']
+    
+    if result_option == 'full':
+        # Assume that you want to return more detailed information in case of 'full' option
+        return result  # Return the full response
+    return result['output']  # Return the output
 
 if __name__ == '__main__':
     app.run(port=5001)  # Run Flask on port 5001
