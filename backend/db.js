@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const connectDB = async () => {
     if (mongoose.connection.readyState === 0) { // Check if not already connected
         try {
-            await mongoose.connect('mongodb://localhost:27017/MyApp', {
+            await mongoose.connect('mongodb://mongodb:27017/MyApp', {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,
             });

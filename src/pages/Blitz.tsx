@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FaChevronDown } from 'react-icons/fa';
+import { useUser } from '../components/UserContext';
+import axios from 'axios';
 
 const Blitz: React.FC = () => {
+    const { user } = useUser();
     const [question, setQuestion] = useState<string>('');
     const [messages, setMessages] = useState<{ sender: string, text: string }[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -17,6 +20,25 @@ const Blitz: React.FC = () => {
         scrollToBottom();
     }, [messages]);
 
+    useEffect(() => {
+        const fetchChatHistory = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8080/api/chats/user/${user?._id}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                });
+                setMessages(response.data);
+            } catch (error) {
+                console.error('Error fetching chat history:', error);
+            }
+        };
+
+        if (user?._id) {
+            fetchChatHistory();
+        }
+    }, [user]);
+
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (question.trim() === '') {
@@ -29,23 +51,24 @@ const Blitz: React.FC = () => {
         setLoading(true);
 
         try {
-            console.log('Selected option:', resultOption); // Log the selected option
             const response = await fetch('http://localhost:5001/api/ask', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ question, resultOption }),
+                body: JSON.stringify({
+                    question,
+                    resultOption,
+                    userId: user?._id || 'default_user_id',   // Replace with actual userId
+                    sender: user?._id || 'default_user_id'    // Replace with actual sender
+                }),
             });
-
-            console.log('Request payload:', { question, resultOption }); // Log the request payload
 
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
 
             const data = await response.json();
-            console.log('Response data:', data); // Log the response data
             const botMessage = { sender: 'bot', text: data.answer || 'No answer received' };
             setMessages([...messages, userMessage, botMessage]);
         } catch (error) {
@@ -100,7 +123,7 @@ const Blitz: React.FC = () => {
                     </div>
                 )}
             </div>
-            <div className="flex-1 overflow-y-auto p-4 pb-20"> {/* Added padding bottom to ensure space for the input box */}
+            <div className="flex-1 overflow-y-auto p-4 pb-20">
                 <div className="max-w-2xl mx-auto space-y-4">
                     {messages.length === 0 && (
                         <div className="flex justify-center">
@@ -110,13 +133,13 @@ const Blitz: React.FC = () => {
                     {messages.map((message, index) => (
                         <div
                             key={index}
-                            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                            className={`flex ${message.sender === 'bot' ? 'justify-start' : 'justify-end'}`}
                         >
                             <div
                                 className={`rounded-lg p-3 ${
-                                    message.sender === 'user'
-                                        ? 'bg-blue-500 text-white'
-                                        : 'bg-gray-300 text-gray-900'
+                                    message.sender === 'bot'
+                                        ? 'bg-gray-300 text-gray-900'
+                                        : 'bg-blue-500 text-white'
                                 }`}
                                 style={{ maxWidth: '75%', margin: '10px' }}
                             >
