@@ -23,14 +23,16 @@ const Blitz: React.FC = () => {
     useEffect(() => {
         const fetchChatHistory = async () => {
             try {
+                console.debug(`Fetching chat history for user: ${user?._id}`); // Log de depuración al iniciar la obtención del historial de chat
                 const response = await axios.get(`http://localhost:8080/api/chats/user/${user?._id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },
                 });
                 setMessages(response.data);
+                console.info('Chat history fetched successfully'); // Log de información al obtener el historial de chat exitosamente
             } catch (error) {
-                console.error('Error fetching chat history:', error);
+                console.error('Error fetching chat history:', error); // Log de error si hay un problema al obtener el historial de chat
             }
         };
 
@@ -49,6 +51,7 @@ const Blitz: React.FC = () => {
         const userMessage = { sender: 'user', text: question };
         setMessages([...messages, userMessage]);
         setLoading(true);
+        console.debug(`User submitted question: ${question}`); // Log de depuración al enviar la pregunta
 
         try {
             const response = await fetch('http://localhost:5001/api/ask', {
@@ -59,8 +62,8 @@ const Blitz: React.FC = () => {
                 body: JSON.stringify({
                     question,
                     resultOption,
-                    userId: user?._id || 'default_user_id',   // Replace with actual userId
-                    sender: user?._id || 'default_user_id'    // Replace with actual sender
+                    userId: user?._id || 'default_user_id',  
+                    sender: user?._id || 'default_user_id'   
                 }),
             });
 
@@ -71,8 +74,9 @@ const Blitz: React.FC = () => {
             const data = await response.json();
             const botMessage = { sender: 'bot', text: data.answer || 'No answer received' };
             setMessages([...messages, userMessage, botMessage]);
+            console.info(`Bot response received: ${data.answer}`); // Log de información al recibir la respuesta del bot
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error fetching answer:', error); // Log de error si hay un problema al obtener la respuesta
             const errorMessage = { sender: 'bot', text: 'Error occurred while fetching answer' };
             setMessages([...messages, userMessage, errorMessage]);
         } finally {

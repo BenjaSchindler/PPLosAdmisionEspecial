@@ -25,6 +25,8 @@ const UserHome: React.FC = () => {
         const userId = user._id;
     
         if (token && userId) {
+          // INFO log: Log para indicar que se están obteniendo los grupos del usuario
+          console.info('Fetching groups for user:', userId); 
           const response = await axios.get(`http://localhost:8080/api/groups?userId=${userId}`, {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -32,9 +34,11 @@ const UserHome: React.FC = () => {
           });
           setGroups(response.data);
         } else {
+          // ERROR log: Log para indicar que el usuario no está autenticado o no se encuentra el ID de usuario
           console.error('User not authenticated or user ID not found');
         }
       } catch (error) {
+        // ERROR log: Log para indicar que hubo un error al obtener los grupos
         console.error('Error fetching groups:', error);
       }
     };
@@ -42,10 +46,16 @@ const UserHome: React.FC = () => {
     const fetchFiles = async () => {
       try {
         const token = localStorage.getItem('token');
+        // DEBUG log: Log para mostrar el valor del token
+        console.debug('Token value (fetchFiles):', token);
         const user = JSON.parse(localStorage.getItem('user') || '{}');
+        // DEBUG log: Log para mostrar el objeto usuario
+        console.debug('User object:', user);
 
         if (token && user._id) {
           const userId = user._id;
+          // DEBUG log: Log para mostrar el ID del usuario
+          console.debug('User ID:', userId);
           const response = await axios.get(`http://localhost:8080/api/files/user/${userId}`, {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -54,9 +64,11 @@ const UserHome: React.FC = () => {
 
           setFiles(response.data);
         } else {
+          // ERROR log: Log para indicar que el usuario no está autenticado
           console.error('User not authenticated');
         }
       } catch (error) {
+        // ERROR log: Log para indicar que hubo un error al obtener los archivos
         console.error('Error fetching files:', error);
       }
     };
@@ -71,6 +83,8 @@ const UserHome: React.FC = () => {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const userId = user._id;
 
+      // DEBUG log: Log para mostrar que se está creando un grupo con el ID de usuario y el nombre del grupo
+      console.debug('Creating group with user ID:', userId, 'and group name:', groupName);
       const response = await axios.post(
         'http://localhost:8080/api/groups',
         {
@@ -81,7 +95,8 @@ const UserHome: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log('Group created:', response.data);
+      // INFO log: Log para indicar que el grupo fue creado exitosamente
+      console.info('Group created:', response.data);
 
       const updatedGroupsResponse = await axios.get(`http://localhost:8080/api/groups?userId=${userId}`, {
         headers: {
@@ -92,6 +107,7 @@ const UserHome: React.FC = () => {
 
       setGroupName('');
     } catch (error) {
+      // ERROR log: Log para indicar que hubo un error al crear el grupo
       console.error('Error creating group:', error);
     }
   };
@@ -216,4 +232,3 @@ const UserHome: React.FC = () => {
 };
 
 export default UserHome;
-  
