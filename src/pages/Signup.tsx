@@ -4,7 +4,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import axios, { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
-import { UserContext } from "../components/UserContext";
+import { useUser } from '../components/UserContext';
 
 interface ErrorResponse {
   error: string;
@@ -18,7 +18,7 @@ const SignUp: React.FC = () => {
   const [passwordError, setPasswordError] = useState("");
   const [registrationError, setRegistrationError] = useState("");
   const navigate = useNavigate();
-  const { setUser } = useContext(UserContext);
+  const { setUser } = useUser();
 
   const { t }: { t: TFunction } = useTranslation();
 

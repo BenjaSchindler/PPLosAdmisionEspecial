@@ -1,19 +1,17 @@
-// Import the Mongoose library for MongoDB connection
 const mongoose = require('mongoose');
 
-// Define an asynchronous function to connect to databases
 const connectDB = async () => {
-  try {
-    await mongoose.connect('mongodb://localhost/MyApp');
-    console.log('Connected to MyApp database');
-
-    await mongoose.createConnection('mongodb://localhost/GroupDB');
-    console.log('Connected to GroupDB database');
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
-  }
+    if (mongoose.connection.readyState === 0) { // Check if not already connected
+        try {
+            await mongoose.connect('mongodb://localhost:27017/MyApp', {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+            });
+            console.log('MongoDB connected');
+        } catch (error) {
+            console.error('MongoDB connection failed:', error.message);
+        }
+    }
 };
 
-// Export the connectDB function for use in other modules
 module.exports = connectDB;

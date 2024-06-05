@@ -6,18 +6,18 @@ interface Group {
   groupName: string;
 }
 
-interface File {
+interface FileData {
   _id: string;
   filename: string;
 }
 
 const UserHome: React.FC = () => {
   const [groups, setGroups] = useState<Group[]>([]);
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<FileData[]>([]);
   const [groupName, setGroupName] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
-    // Fetch user's groups from the backend API
     const fetchGroups = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -39,17 +39,13 @@ const UserHome: React.FC = () => {
       }
     };
 
-    // Fetch user's personal files from the backend API
     const fetchFiles = async () => {
       try {
         const token = localStorage.getItem('token');
-        console.log('Token value (fetchFiles):', token);
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        console.log('User object:', user);
 
         if (token && user._id) {
           const userId = user._id;
-          console.log('User ID:', userId);
           const response = await axios.get(`http://localhost:8080/api/files/user/${userId}`, {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -69,15 +65,12 @@ const UserHome: React.FC = () => {
     fetchFiles();
   }, []);
 
-
   const handleCreateGroup = async () => {
     try {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const userId = user._id;
-  
-      console.log(userId);
-      console.log(groupName);
+
       const response = await axios.post(
         'http://localhost:8080/api/groups',
         {
@@ -89,25 +82,72 @@ const UserHome: React.FC = () => {
         }
       );
       console.log('Group created:', response.data);
-  
-      // Fetch the updated list of groups after creating a new group
+
       const updatedGroupsResponse = await axios.get(`http://localhost:8080/api/groups?userId=${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       setGroups(updatedGroupsResponse.data);
-  
-      // Clear the input field
+
       setGroupName('');
     } catch (error) {
       console.error('Error creating group:', error);
     }
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const userId = user._id;
+
+      if (!selectedFile) {
+        alert('Please select a file first.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', selectedFile as Blob);
+      formData.append('userId', userId);
+
+      const response = await axios.post(
+        'http://localhost:8080/api/files/upload',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log('File uploaded:', response.data);
+
+      const updatedFilesResponse = await axios.get(`http://localhost:8080/api/files/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setFiles(updatedFilesResponse.data);
+
+      setSelectedFile(null);
+      (document.getElementById('file-upload') as HTMLInputElement).value = '';
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white px-4 py-8">
-      <div className="max-w-4xl mx-auto mt-16"> {/* Add top margin here */}
+      <div className="max-w-4xl mx-auto mt-16">
         <h1 className="text-4xl font-bold mb-8 text-center font-orbitron">Welcome to Your Dashboard</h1>
 
         <div className="mb-8">
@@ -125,6 +165,24 @@ const UserHome: React.FC = () => {
               className="bg-blue-600 hover:bg-blue-700 rounded-r-md px-6 py-2 text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
             >
               Create
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4 font-orbitron">Upload a SQL File</h2>
+          <div className="flex">
+            <input
+              id="file-upload"
+              type="file"
+              onChange={handleFileChange}
+              className="border border-gray-600 bg-gray-800 rounded-l-md px-4 py-2 w-full text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
+            />
+            <button
+              onClick={handleFileUpload}
+              className="bg-blue-600 hover:bg-blue-700 rounded-r-md px-6 py-2 text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
+            >
+              Upload
             </button>
           </div>
         </div>

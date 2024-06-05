@@ -1,40 +1,31 @@
 const express = require('express');
 const router = express.Router();
 const Group = require('./groupModel');
-const { User } = require('./app');
+const { authenticateToken } = require('./authMiddleware'); // Ensure this import statement is correct
 
 // Create a new group
 router.post('/', async (req, res) => {
+  const { groupName, userId } = req.body;
+
   try {
-    const { groupName, userId } = req.body;
-
-    const group = new Group({
-      groupName,
-      members: [userId],
-      admins: [userId], // Add the user as the first admin
-    });
-
-    const savedGroup = await group.save();
-    res.status(201).json(savedGroup);
+    const newGroup = new Group({ groupName, userId });
+    await newGroup.save();
+    res.status(201).json(newGroup);
   } catch (error) {
     console.error('Error creating group:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Get groups for a specific user
+// Fetch groups by user ID
 router.get('/', async (req, res) => {
+  const { userId } = req.query;
+
   try {
-    const userId = req.query.userId;
-
-    if (!userId) {
-      return res.status(400).json({ error: 'userId is required' });
-    }
-
-    const groups = await Group.find({ members: userId }).populate('members', 'username email');
-    res.json(groups);
+    const groups = await Group.find({ userId });
+    res.status(200).json(groups);
   } catch (error) {
-    console.error('Error retrieving groups:', error);
+    console.error('Error fetching groups:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -104,6 +95,28 @@ router.delete('/:groupId/members/:userId', async (req, res) => {
   } catch (error) {
     console.error('Error removing member from group:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+// Save a chat message
+router.post('/:groupId/messages', async (req, res) => {
+  const { groupId } = req.params;
+  const { sender, text } = req.body;
+
+  try {
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    const message = { sender, text, timestamp: new Date() };
+    group.messages.push(message);
+    await group.save();
+
+    res.status(201).json({ message: 'Message saved successfully', message });
+  } catch (error) {
+    res.status(500).json({ message: 'Error saving message', error });
   }
 });
 

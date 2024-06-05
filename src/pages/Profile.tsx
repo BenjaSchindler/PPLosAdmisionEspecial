@@ -2,12 +2,12 @@ import React, { useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { googleLogout } from '@react-oauth/google';
-import { UserContext } from '../components/UserContext';
+import { useUser } from '../components/UserContext';
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const { updateUserPhotoURL } = useLocation().state || {};
-  const { user, setUser } = useContext(UserContext);
+  const { user, setUser } = useUser();
 
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

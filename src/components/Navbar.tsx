@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { googleLogout } from "@react-oauth/google";
 import LanguageSelector from "./LanguageSelector";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
-import { UserContext } from "./UserContext";
+import { useUser } from "./UserContext";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +14,7 @@ const Navbar: React.FC = () => {
   const isLoggedIn = localStorage.getItem("token");
   const menuRef = useRef<HTMLDivElement>(null);
   const languageMenuRef = useRef<HTMLDivElement>(null);
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useUser();
 
   const { t }: { t: TFunction } = useTranslation();
 
@@ -39,6 +39,9 @@ const Navbar: React.FC = () => {
     // Remove the token and user information from localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
+    // Clear the user state in the UserContext
+    setUser(null);
 
     // Perform Google logout
     googleLogout();
@@ -72,8 +75,8 @@ const Navbar: React.FC = () => {
     };
   }, []);
 
-  const getUserPhoto = () => {
-    return user?.photoURL || null;
+  const getUserPhoto = (): string | undefined => {
+    return user?.photoURL || undefined;
   };
 
   const getUserInitial = () => {

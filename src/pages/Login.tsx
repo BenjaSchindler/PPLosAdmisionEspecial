@@ -4,14 +4,14 @@ import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
-import { UserContext } from "../components/UserContext";
+import { useUser } from '../components/UserContext';
 
 const Login: React.FC = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
-  const { setUser } = useContext(UserContext);
+  const { setUser } = useUser();
 
   const { t }: { t: TFunction } = useTranslation();
 

@@ -1,30 +1,58 @@
+# agent-flask.py
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from pymongo import MongoClient, errors
 import os
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import create_sql_agent
 from langchain_openai import ChatOpenAI
+import datetime
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS
 
+# MongoDB Configuration
+mongo_client = MongoClient("mongodb://localhost:27017/")
+db = mongo_client["MyApp"]
+chats_collection = db["chats"]
+
+def save_message_to_db(group_id, user_id, sender, text):
+    try:
+        chats_collection.insert_one({
+            'groupId': group_id,
+            'userId': user_id,
+            'sender': sender,
+            'text': text,
+            'timestamp': datetime.datetime.utcnow()
+        })
+        return {"message": "Message saved successfully"}
+    except errors.ConnectionFailure:
+        return {"error": "Failed to connect to MongoDB"}
+
 @app.route('/api/ask', methods=['POST'])
-def handle_question():
+def ask():
     data = request.get_json()
     question = data.get('question')
-    result_option = data.get('resultOption', 'output')  # Get the result option from the request
-
-    print('Received question:', question)  # Log the received question
-    print('Received result option:', result_option)  # Log the received result option
+    result_option = data.get('resultOption', 'output')
 
     if not question:
-        return jsonify({"error": "Please provide a question"}), 400
+        return jsonify({'error': 'Question is required'}), 400
 
-    # Call your existing agent logic here
-    response = get_agent_response(question, result_option)  # Pass the result option to your agent logic
-    return jsonify({"answer": response})
+    answer = process_question(question, result_option)
 
-def get_agent_response(question, result_option):
+    # Save question to MongoDB
+    response = save_message_to_db(data.get('groupId'), data.get('userId'), data.get('sender', 'bot'), question)
+    if 'error' in response:
+        return jsonify(response), 500
+
+    # Save answer to MongoDB
+    response = save_message_to_db(data.get('groupId'), data.get('userId'), 'bot', answer)
+    if 'error' in response:
+        return jsonify(response), 500
+
+    return jsonify({'answer': answer})
+
+def process_question(question, result_option):
     # Logic from agent.py
     APIKEY = os.getenv('OPENAI_API_KEY')
 
@@ -62,11 +90,8 @@ def get_agent_response(question, result_option):
     )
 
     result = agent.invoke({"input": question})
-    
-    if result_option == 'full':
-        # Assume that you want to return more detailed information in case of 'full' option
-        return result  # Return the full response
-    return result['output']  # Return the output
+
+    return result['output']  # Ensure to return a string
 
 if __name__ == '__main__':
     app.run(port=5001)  # Run Flask on port 5001
