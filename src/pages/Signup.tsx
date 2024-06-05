@@ -4,7 +4,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import axios, { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
-import { useUser } from '../components/UserContext';
+import { UserContext } from "../components/UserContext";
 
 interface ErrorResponse {
   error: string;
@@ -18,7 +18,7 @@ const SignUp: React.FC = () => {
   const [passwordError, setPasswordError] = useState("");
   const [registrationError, setRegistrationError] = useState("");
   const navigate = useNavigate();
-  const { setUser } = useUser();
+  const { setUser } = useContext(UserContext);
 
   const { t }: { t: TFunction } = useTranslation();
 
@@ -33,6 +33,9 @@ const SignUp: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // DEBUG log: track form submission
+    console.debug("Submitting signup form", { username, email });
+
     try {
       const response = await axios.post("http://localhost:8080/Signup", {
         username,
@@ -46,6 +49,9 @@ const SignUp: React.FC = () => {
         // Store the token and user information in localStorage
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
+
+        // INFO log: user registration successful
+        console.info("User registered successfully", { user });
 
         // Navigate to home page or dashboard upon successful signup
         navigate("/");
@@ -62,10 +68,12 @@ const SignUp: React.FC = () => {
         ) {
           setRegistrationError("User already exists");
         } else {
+          // ERROR log: error during user registration
           console.error("Error registering user", axiosError);
           setRegistrationError("An error occurred. Please try again.");
         }
       } else {
+        // ERROR log: generic error during user registration
         console.error("Error registering user", error);
         setRegistrationError("An error occurred. Please try again.");
       }
@@ -89,18 +97,24 @@ const SignUp: React.FC = () => {
             photoURL: res.data.user.photoURL,
           })
         );
+
+        // INFO log: user logged in successfully with Google
+        console.info("User logged in successfully with Google", { user: res.data.user });
+
         // Navigate to home page or dashboard upon successful login
         navigate("/");
       } else {
-        // Handle login error
+        // ERROR log: Google login failed
         console.error("Google login failed");
       }
     } catch (error) {
+      // ERROR log: error during Google login
       console.error("Error logging in with Google:", error);
     }
   };
 
   const handleGoogleFailure = () => {
+    // ERROR log: Google login failure
     console.error("Google login failed");
     // Handle login failure, display error message, etc.
   };
@@ -225,3 +239,4 @@ const SignUp: React.FC = () => {
 };
 
 export default SignUp;
+
