@@ -15,16 +15,25 @@ const LanguageSelector: React.FC = () => {
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
+
+    // LOG de DEBUG: rastrear cambios en el estado del menú desplegable
+    console.debug("Estado del menú desplegable cambiado:", !isOpen);
   };
 
   const handleLanguageChange = (langCode: string) => {
     i18n.changeLanguage(langCode);
     setIsOpen(false);
+
+    // LOG de INFO: registro de cambio de idioma
+    console.info("Se cambió el idioma:", langCode);
   };
 
   const handleClickOutside = (event: MouseEvent) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
       setIsOpen(false);
+
+      // LOG de ERROR: el menú desplegable se cerró debido a un clic fuera del elemento
+      console.error("Se cerró el menú desplegable debido a un clic fuera del componente");
     }
   };
 
@@ -34,6 +43,9 @@ const LanguageSelector: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Nuevo LOG de ERROR: Manejo de error cuando el menú desplegable no se puede cerrar
+  console.error("¡Error! No se puede cerrar el menú desplegable");
 
   return (
     <div className="relative" ref={dropdownRef}>
