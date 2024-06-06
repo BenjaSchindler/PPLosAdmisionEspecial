@@ -4,11 +4,13 @@ services:
   react-app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile  # Assuming the React app Dockerfile is in the root directory and named Dockerfile
     ports:
       - "3000:3000"
     env_file:
       - .env
+    volumes:
+      - .:/app
     depends_on:
       - express-backend
       - flask-backend
@@ -16,23 +18,27 @@ services:
   express-backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile  # Assuming the Express app Dockerfile is in the backend directory and named Dockerfile
     ports:
       - "8080:8080"
     env_file:
       - ./backend/.env
+    volumes:
+      - ./backend:/app
     depends_on:
       - flask-backend
 
   flask-backend:
     build:
       context: ./AppConsultas
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile  # Assuming the Flask app Dockerfile is in the AppConsultas directory and named Dockerfile
     ports:
       - "5001:5001"
     environment:
       - FLASK_APP=agent-flask.py
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./AppConsultas:/app
 
   mongodb:
     image: mongo:latest

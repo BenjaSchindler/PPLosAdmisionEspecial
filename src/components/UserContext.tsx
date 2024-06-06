@@ -31,3 +31,6 @@ export const useUser = (): UserContextType => {
   }
   return context;
 };
+
+// Export UserContext for usage in other components
+export { UserContext };
