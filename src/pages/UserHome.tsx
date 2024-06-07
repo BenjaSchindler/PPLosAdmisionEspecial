@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import backgroundImage from './assets/background.jpg'; // Asegúrate de que la ruta sea correcta
 
 interface Group {
   _id: string;
@@ -152,10 +151,16 @@ const UserHome: React.FC = () => {
   };
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center text-white px-4 py-8"
-      style={{ backgroundImage: `url(${backgroundImage})` }}
-    >
+    <div className="min-h-screen bg-green-200 text-white px-4 py-8">
+      <nav className="bg-blue-200 p-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <div className="text-2xl font-bold text-gray-800">Navbar</div>
+            </div>
+          </div>
+        </div>
+      </nav>
       <div className="max-w-4xl mx-auto mt-16 bg-gray-900 bg-opacity-75 p-8 rounded-lg">
         <h1 className="text-4xl font-bold mb-8 text-center font-orbitron">Welcome to Your Dashboard</h1>
 
@@ -225,4 +230,5 @@ const UserHome: React.FC = () => {
 };
 
 export default UserHome;
+
 
