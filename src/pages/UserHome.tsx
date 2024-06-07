@@ -11,13 +11,29 @@ interface FileData {
   filename: string;
 }
 
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+}
+
 const UserHome: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
   const [files, setFiles] = useState<FileData[]>([]);
   const [groupName, setGroupName] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userData = JSON.parse(localStorage.getItem('user') || '{}');
+        setUser(userData);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
     const fetchGroups = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -65,6 +81,7 @@ const UserHome: React.FC = () => {
       }
     };
 
+    fetchUserData();
     fetchGroups();
     fetchFiles();
   }, []);
@@ -161,6 +178,18 @@ const UserHome: React.FC = () => {
           </div>
         </div>
       </nav>
+      {user && (
+        <div className="bg-blue-300 p-4 mb-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div>
+                <p className="text-xl font-bold text-gray-800">Welcome, {user.name}</p>
+                <p className="text-md text-gray-700">{user.email}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="max-w-4xl mx-auto mt-16 bg-gray-900 bg-opacity-75 p-8 rounded-lg">
         <h1 className="text-4xl font-bold mb-8 text-center font-orbitron">Welcome to Your Dashboard</h1>
 
