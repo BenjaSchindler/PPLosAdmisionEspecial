@@ -4,7 +4,7 @@ services:
   react-app:
     build:
       context: .
-      dockerfile: Dockerfile  # Assuming the React app Dockerfile is in the root directory and named Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     env_file:
@@ -18,20 +18,21 @@ services:
   express-backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile  # Assuming the Express app Dockerfile is in the backend directory and named Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     env_file:
       - ./backend/.env
     volumes:
       - ./backend:/app
+      - /app/node_modules
     depends_on:
       - flask-backend
 
   flask-backend:
     build:
       context: ./AppConsultas
-      dockerfile: Dockerfile  # Assuming the Flask app Dockerfile is in the AppConsultas directory and named Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "5001:5001"
     environment:
