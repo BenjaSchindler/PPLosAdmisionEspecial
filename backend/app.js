@@ -9,7 +9,7 @@ const path = require('path');
 require('dotenv').config();
 const fileRoutes = require('./fileRoutes');
 const groupRoutes = require('./groupRoutes');
-const chatRoutes = require('./chatRoutes');
+const chatRoutes = require('./chatRoutes'); // Ensure this is correctly imported
 const { authenticateToken } = require('./authMiddleware');
 const connectDB = require('./db');
 const File = require('./fileModel');
@@ -264,7 +264,6 @@ app.post('/uploadGroupFile', authenticateToken, upload.single('file'), async (re
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 // Include file and group routes
 app.use('/api/groups', groupRoutes);

@@ -40,7 +40,7 @@ const Blitz: React.FC = () => {
       if (!selectedFile || !user?._id) return;
       try {
         console.debug(`Fetching chat history for file: ${selectedFile.filename} and user: ${user._id}`);
-        const response = await axios.get(`http://localhost:5001/api/chats/file/${selectedFile._id}/user/${user._id}`, {
+        const response = await axios.get(`http://localhost:8080/api/chats/file/${selectedFile._id}/user/${user._id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -52,7 +52,10 @@ const Blitz: React.FC = () => {
       }
     };
 
-    fetchChatHistory();
+    if (selectedFile) {
+      setMessages([]); // Clear messages before fetching new chat history
+      fetchChatHistory();
+    }
   }, [selectedFile, user]);
 
   useEffect(() => {
@@ -213,6 +216,11 @@ const Blitz: React.FC = () => {
     setShowOptions(false);
   };
 
+  const handleFileClick = (file: FileData) => {
+    setSelectedFile(file);
+    setMessages([]); // Clear messages before fetching new chat history
+  };
+
   return (
     <div className="flex h-screen" style={{ paddingTop: '60px', backgroundColor: '#1a202c' }}>
       <div className="w-1/4 bg-gray-900 text-white p-4 flex flex-col">
@@ -225,7 +233,7 @@ const Blitz: React.FC = () => {
         <h2 className="text-xl mb-4 mt-8">Your Files</h2>
         <ul className="flex-1 overflow-y-auto">
           {files.map((file) => (
-            <li key={file._id} className={`p-2 cursor-pointer ${selectedFile && selectedFile._id === file._id ? 'bg-gray-700' : ''}`} onClick={() => setSelectedFile(file)}>
+            <li key={file._id} className={`p-2 cursor-pointer ${selectedFile && selectedFile._id === file._id ? 'bg-gray-700' : ''}`} onClick={() => handleFileClick(file)}>
               {file.filename}
             </li>
           ))}
