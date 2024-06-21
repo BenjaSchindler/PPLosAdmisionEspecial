@@ -265,6 +265,24 @@ app.post('/uploadGroupFile', authenticateToken, upload.single('file'), async (re
   }
 });
 
+
+// Add this route in app.js before the final app.listen call
+app.get('/api/user/email/:email', async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user by email:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 // Include file and group routes
 app.use('/api/groups', groupRoutes);
 app.use('/api/files', fileRoutes);

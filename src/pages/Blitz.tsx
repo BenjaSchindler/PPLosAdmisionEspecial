@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaChevronDown } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { useUser } from '../components/UserContext';
 import axios from 'axios';
 
@@ -18,13 +18,12 @@ const Blitz: React.FC = () => {
   const [question, setQuestion] = useState<string>('');
   const [messages, setMessages] = useState<{ sender: string, text: string }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [showOptions, setShowOptions] = useState<boolean>(false);
-  const [resultOption, setResultOption] = useState<string>('output'); // default option
   const [groups, setGroups] = useState<Group[]>([]);
   const [files, setFiles] = useState<FileData[]>([]);
-  const [groupName, setGroupName] = useState('');
+  const [groupFiles, setGroupFiles] = useState<FileData[]>([]);
   const [selectedFile, setSelectedFile] = useState<FileData | null>(null);
-  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+  const [showGroups, setShowGroups] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const scrollToBottom = () => {
@@ -39,14 +38,12 @@ const Blitz: React.FC = () => {
     const fetchChatHistory = async () => {
       if (!selectedFile || !user?._id) return;
       try {
-        console.debug(`Fetching chat history for file: ${selectedFile.filename} and user: ${user._id}`);
         const response = await axios.get(`http://localhost:8080/api/chats/file/${selectedFile._id}/user/${user._id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
         setMessages(response.data);
-        console.info('Chat history fetched successfully');
       } catch (error) {
         console.error('Error fetching chat history:', error);
       }
@@ -107,56 +104,57 @@ const Blitz: React.FC = () => {
     fetchFiles();
   }, [user]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setFileToUpload(file);
-    }
-  };
+      try {
+        const token = localStorage.getItem('token');
+        const userId = user?._id;
 
-  const handleFileUpload = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const userId = user?._id;
-
-      if (!fileToUpload) {
-        alert('Please select a file first.');
-        return;
-      }
-
-      if (!userId) {
-        alert('User ID not found.');
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('file', fileToUpload);
-      formData.append('userId', userId);
-
-      const response = await axios.post(
-        'http://localhost:8080/api/files/upload',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`,
-          },
+        if (!userId) {
+          alert('User ID not found.');
+          return;
         }
-      );
 
-      console.log('File uploaded:', response.data);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('userId', userId);
 
-      const updatedFilesResponse = await axios.get(`http://localhost:8080/api/files/user/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setFiles(updatedFilesResponse.data);
+        if (selectedGroup) {
+          formData.append('groupId', selectedGroup._id);
+        }
 
-      setFileToUpload(null);
-      (document.getElementById('file-upload') as HTMLInputElement).value = '';
-    } catch (error) {
-      console.error('Error uploading file:', error);
+        const response = await axios.post(
+          'http://localhost:8080/api/files/upload',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (selectedGroup) {
+          const updatedGroupFilesResponse = await axios.get(`http://localhost:8080/api/files/group/${selectedGroup._id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setGroupFiles(updatedGroupFilesResponse.data);
+        } else {
+          const updatedFilesResponse = await axios.get(`http://localhost:8080/api/files/user/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setFiles(updatedFilesResponse.data);
+        }
+
+        setSelectedFile(response.data);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
     }
   };
 
@@ -170,7 +168,6 @@ const Blitz: React.FC = () => {
     const userMessage = { sender: 'user', text: question };
     setMessages([...messages, userMessage]);
     setLoading(true);
-    console.debug(`User submitted question: ${question}`);
 
     try {
       const response = await fetch('http://localhost:5001/api/ask', {
@@ -180,7 +177,6 @@ const Blitz: React.FC = () => {
         },
         body: JSON.stringify({
           question,
-          resultOption,
           userId: user?._id || 'default_user_id',
           sender: user?._id || 'default_user_id',
           fileId: selectedFile?._id,
@@ -195,7 +191,6 @@ const Blitz: React.FC = () => {
       const data = await response.json();
       const botMessage = { sender: 'bot', text: data.answer || 'No answer received' };
       setMessages([...messages, userMessage, botMessage]);
-      console.info(`Bot response received: ${data.answer}`);
     } catch (error) {
       console.error('Error fetching answer:', error);
       const errorMessage = { sender: 'bot', text: 'Error occurred while fetching answer' };
@@ -207,65 +202,98 @@ const Blitz: React.FC = () => {
     setQuestion('');
   };
 
-  const toggleOptions = () => {
-    setShowOptions(!showOptions);
-  };
-
-  const selectOption = (option: string) => {
-    setResultOption(option);
-    setShowOptions(false);
-  };
-
   const handleFileClick = (file: FileData) => {
     setSelectedFile(file);
     setMessages([]); // Clear messages before fetching new chat history
   };
 
+  const handleGroupClick = async (group: Group) => {
+    setSelectedGroup(group);
+    setSelectedFile(null);
+    setMessages([]);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`http://localhost:8080/api/files/group/${group._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setGroupFiles(response.data);
+    } catch (error) {
+      console.error('Error fetching group files:', error);
+    }
+  };
+
+  const handleBackToFiles = () => {
+    setSelectedGroup(null);
+    setGroupFiles([]);
+    setSelectedFile(null);
+  };
+
+  const toggleGroupView = () => {
+    setShowGroups(!showGroups);
+  };
+
   return (
     <div className="flex h-screen" style={{ paddingTop: '60px', backgroundColor: '#1a202c' }}>
-      <div className="w-1/4 bg-gray-900 text-white p-4 flex flex-col">
-        <h2 className="text-xl mb-4">Your Groups</h2>
+      <div className="w-1/4 bg-gray-900 text-white p-4 flex flex-col rounded-lg shadow-md">
+        <h2 className="text-xl mb-4 cursor-pointer flex justify-between items-center" onClick={toggleGroupView}>
+          {selectedGroup ? selectedGroup.groupName : 'My Files'}
+          {showGroups ? <FaChevronUp /> : <FaChevronDown />}
+        </h2>
+        {showGroups && (
+          <div className="bg-gray-800 rounded-lg shadow-md p-4 mb-4">
+            <ul className="overflow-y-auto">
+              <li
+                className={`p-2 cursor-pointer ${!selectedGroup ? 'bg-blue-700' : 'bg-gray-700'} mb-2 rounded-md`}
+                onClick={handleBackToFiles}
+              >
+                My Files
+              </li>
+              <hr className="border-gray-600 my-2" />
+              {groups.map((group) => (
+                <li
+                  key={group._id}
+                  className={`p-2 cursor-pointer ${selectedGroup && selectedGroup._id === group._id ? 'bg-blue-700' : 'bg-gray-700'} mb-2 rounded-md`}
+                  onClick={() => handleGroupClick(group)}
+                >
+                  {group.groupName}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <hr className="my-4 border-gray-600" />
         <ul className="flex-1 overflow-y-auto">
-          {groups.map((group) => (
-            <li key={group._id} className="p-2 bg-gray-700 rounded-md mb-2">{group.groupName}</li>
-          ))}
+          {!selectedGroup && (
+            files.map((file) => (
+              <li
+                key={file._id}
+                className={`p-2 cursor-pointer ${selectedFile && selectedFile._id === file._id ? 'bg-gray-700' : ''} rounded-md`}
+                onClick={() => handleFileClick(file)}
+              >
+                {file.filename}
+              </li>
+            ))
+          )}
+          {selectedGroup && (
+            groupFiles.map((file) => (
+              <li
+                key={file._id}
+                className={`p-2 cursor-pointer ${selectedFile && selectedFile._id === file._id ? 'bg-gray-700' : ''} rounded-md`}
+                onClick={() => handleFileClick(file)}
+              >
+                {file.filename}
+              </li>
+            ))
+          )}
         </ul>
-        <h2 className="text-xl mb-4 mt-8">Your Files</h2>
-        <ul className="flex-1 overflow-y-auto">
-          {files.map((file) => (
-            <li key={file._id} className={`p-2 cursor-pointer ${selectedFile && selectedFile._id === file._id ? 'bg-gray-700' : ''}`} onClick={() => handleFileClick(file)}>
-              {file.filename}
-            </li>
-          ))}
-        </ul>
-        <input type="file" id="file-upload" onChange={handleFileChange} className="mt-4 p-2 bg-white text-gray-800 cursor-pointer" />
-        <button
-          onClick={handleFileUpload}
-          className="bg-blue-600 hover:bg-blue-700 rounded-md px-4 py-2 mt-2 text-white font-bold"
-        >
-          Upload
-        </button>
+        <label htmlFor="file-upload" className="mt-4 p-2 bg-blue-600 text-white rounded-md cursor-pointer flex items-center justify-center hover:bg-blue-700">
+          Add a file +
+        </label>
+        <input type="file" id="file-upload" onChange={handleFileChange} className="hidden" />
       </div>
       <div className="flex-1 flex flex-col">
-        <div className="absolute top-16 right-4">
-          <button
-            type="button"
-            onClick={toggleOptions}
-            className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300"
-          >
-            Options <FaChevronDown />
-          </button>
-          {showOptions && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg">
-              <div className="py-2 px-4 hover:bg-gray-100 cursor-pointer" onClick={() => selectOption('output')}>
-                Only Output
-              </div>
-              <div className="py-2 px-4 hover:bg-gray-100 cursor-pointer" onClick={() => selectOption('full')}>
-                Show Everything
-              </div>
-            </div>
-          )}
-        </div>
         <div className="flex-1 overflow-y-auto p-4 pb-20">
           <div className="max-w-2xl mx-auto space-y-4">
             {messages.length === 0 && (
@@ -290,8 +318,8 @@ const Blitz: React.FC = () => {
             <div ref={messagesEndRef} />
           </div>
         </div>
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-transparent" style={{ marginBottom: '20px' }}>
-          <form onSubmit={handleSubmit} className="flex space-x-0 mx-auto max-w-2xl relative">
+        <div className="flex-shrink-0 p-4 bg-gray-800">
+          <form onSubmit={handleSubmit} className="flex space-x-0 max-w-2xl mx-auto">
             <input
               type="text"
               value={question}
