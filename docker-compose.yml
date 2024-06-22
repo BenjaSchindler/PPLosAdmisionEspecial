@@ -36,17 +36,11 @@ services:
     ports:
       - "5001:5001"
     environment:
-      - FLASK_APP=agent-flask.py
+      - FLASK_APP=agent_flask.py
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
       - ./AppConsultas:/app
-
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27018:27017"
-    volumes:
-      - mongo-data:/data/db
+      - ./backend/uploads:/app/uploads  # Montar el directorio de uploads
 
 volumes:
   mongo-data:

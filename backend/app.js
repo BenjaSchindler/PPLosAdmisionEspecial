@@ -9,7 +9,8 @@ const path = require('path');
 require('dotenv').config();
 const fileRoutes = require('./fileRoutes');
 const groupRoutes = require('./groupRoutes');
-const chatRoutes = require('./chatRoutes'); // Ensure this is correctly imported
+const chatRoutes = require('./chatRoutes');
+const invitationRoutes = require('./invitationRoutes');
 const { authenticateToken } = require('./authMiddleware');
 const connectDB = require('./db');
 const File = require('./fileModel');
@@ -287,6 +288,7 @@ app.get('/api/user/email/:email', async (req, res) => {
 app.use('/api/groups', groupRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/chats', chatRoutes);
+app.use('/api/invitations', invitationRoutes);
 
 // Connect to MongoDB
 connectDB();

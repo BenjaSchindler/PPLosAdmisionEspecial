@@ -15,10 +15,16 @@ interface FileData {
   filename: string;
 }
 
+interface Invitation {
+  _id: string;
+  groupId: { _id: string; groupName: string };
+}
+
 const UserHome: React.FC = () => {
   const { user } = useUser();
   const [groups, setGroups] = useState<Group[]>([]);
   const [files, setFiles] = useState<FileData[]>([]);
+  const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [groupName, setGroupName] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -68,8 +74,29 @@ const UserHome: React.FC = () => {
       }
     };
 
+    const fetchInvitations = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const userId = user?._id;
+
+        if (token && userId) {
+          const response = await axios.get(`http://localhost:8080/api/invitations/user/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setInvitations(response.data);
+        } else {
+          console.error('User not authenticated');
+        }
+      } catch (error) {
+        console.error('Error fetching invitations:', error);
+      }
+    };
+
     fetchGroups();
     fetchFiles();
+    fetchInvitations();
   }, [user]);
 
   const handleCreateGroup = async () => {
@@ -193,19 +220,17 @@ const UserHome: React.FC = () => {
     if (!selectedGroup) return;
 
     try {
-      const userId = await fetchUserIdByEmail(newMemberEmail);
-
+      console.log(`Adding member with email: ${newMemberEmail}`);
       const token = localStorage.getItem('token');
-      await axios.post(
-        `http://localhost:8080/api/groups/${selectedGroup._id}/members`,
-        { userId },
+      const response = await axios.post(
+        `http://localhost:8080/api/invitations/${selectedGroup._id}/members`,
+        { email: newMemberEmail },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
-      await refreshSelectedGroup(selectedGroup._id);
       setNewMemberEmail('');
+      console.log(`Invitation sent to ${newMemberEmail}`, response.data);
     } catch (error) {
       console.error('Error adding member:', error);
     }
@@ -235,16 +260,57 @@ const UserHome: React.FC = () => {
 
   const handleDeleteUser = async (userId: string) => {
     if (!selectedGroup) return;
-
+  
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:8080/api/groups/${selectedGroup._id}/members/${userId}`, {
+      const groupId = selectedGroup._id;
+      console.log(`Deleting user with ID: ${userId} from group ID: ${groupId}`);
+      const url = `http://localhost:8080/api/groups/${groupId}/members/${userId}`;
+      console.log(`Request URL: ${url}`);
+  
+      await axios.delete(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      await refreshSelectedGroup(selectedGroup._id);
+  
+      await refreshSelectedGroup(groupId);
     } catch (error) {
       console.error('Error deleting user:', error);
+    }
+  };
+  
+
+  const handleRespondToInvitation = async (invitationId: string, status: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        `http://localhost:8080/api/invitations/invitations/${invitationId}`,
+        { status },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Refresh invitations and groups after responding to an invitation
+      const userId = user?._id;
+      if (userId) {
+        const [updatedGroupsResponse, updatedInvitationsResponse] = await Promise.all([
+          axios.get(`http://localhost:8080/api/groups?userId=${userId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+          axios.get(`http://localhost:8080/api/invitations/user/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+        ]);
+
+        setGroups(updatedGroupsResponse.data);
+        setInvitations(updatedInvitationsResponse.data);
+      }
+    } catch (error) {
+      console.error('Error responding to invitation:', error);
     }
   };
 
@@ -324,6 +390,31 @@ const UserHome: React.FC = () => {
           )}
         </div>
 
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4 font-orbitron">Invitations</h2>
+          {invitations.length === 0 ? (
+            <p className="text-gray-400 font-orbitron">You have no invitations.</p>
+          ) : (
+            invitations.map((invitation) => (
+              <div key={invitation._id} className="bg-gray-800 p-4 rounded-md mb-4 shadow-lg">
+                <p className="text-white mb-2">You have been invited to join the group: {invitation.groupId.groupName}</p>
+                <button
+                  onClick={() => handleRespondToInvitation(invitation._id, 'accepted')}
+                  className="bg-green-600 hover:bg-green-700 rounded-md px-4 py-2 text-white font-bold mr-2"
+                >
+                  Accept
+                </button>
+                <button
+                  onClick={() => handleRespondToInvitation(invitation._id, 'rejected')}
+                  className="bg-red-600 hover:bg-red-700 rounded-md px-4 py-2 text-white font-bold"
+                >
+                  Reject
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
         {showModal && selectedGroup && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-gray-800 rounded-md shadow-lg p-8 w-full max-w-md">
@@ -342,7 +433,7 @@ const UserHome: React.FC = () => {
                     onClick={handleAddMember}
                     className="bg-green-600 hover:bg-green-700 rounded-r-md px-6 py-2 text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
                   >
-                    Add
+                    Invite
                   </button>
                 </div>
               </div>

@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS
 
 # MongoDB Configuration
-mongo_client = MongoClient("mongodb://localhost:27017")  # mongodb://localhost:27017 or mongodb://mongodb:27017/MyApp
+mongo_client = MongoClient("mongodb+srv://benjaschindler2:OEFadkY0VDagp5ci@myapp.dcvh37v.mongodb.net/")  # mongodb://localhost:27017 or mongodb://mongodb:27017/MyApp
 db = mongo_client["MyApp"]
 chats_collection = db["chats"]
 

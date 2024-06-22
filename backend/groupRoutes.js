@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Group = require('./groupModel');
-const User = require('./userModel'); // Ensure this import statement is correct
+const User = require('./userModel');
+const Invitation = require('./invitationModel');
 const { authenticateToken } = require('./authMiddleware');
 
 // Create a new group
@@ -64,115 +65,108 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-
-
-// Add a member to a group
+// Add a member to a group via invitation
 router.post('/:groupId/members', authenticateToken, async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { email } = req.body;
+    const invitedBy = req.user.userId;
+    const groupId = req.params.groupId;
 
-    const group = await Group.findById(req.params.groupId);
-    if (!group) {
-      return res.status(404).json({ error: 'Group not found' });
-    }
-
-    const user = await User.findById(userId);
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    if (group.members.includes(userId)) {
-      return res.status(400).json({ error: 'User is already a member of the group' });
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
     }
 
-    group.members.push(userId);
-    await group.save();
+    const newInvitation = new Invitation({
+      groupId,
+      userId: user._id,
+      invitedBy
+    });
+    await newInvitation.save();
 
-    res.json(group);
+    res.status(201).json(newInvitation);
   } catch (error) {
-    console.error('Error adding member to group:', error);
+    console.error('Error inviting member to group:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Respond to an invitation
+router.patch('/invitations/:invitationId', authenticateToken, async (req, res) => {
+  try {
+    const { invitationId } = req.params;
+    const { status } = req.body;
+
+    const invitation = await Invitation.findById(invitationId);
+    if (!invitation) {
+      return res.status(404).json({ error: 'Invitation not found' });
+    }
+
+    if (status === 'accepted') {
+      const group = await Group.findById(invitation.groupId);
+      if (!group) {
+        return res.status(404).json({ error: 'Group not found' });
+      }
+
+      if (!group.members.includes(invitation.userId)) {
+        group.members.push(invitation.userId);
+        await group.save();
+      }
+    }
+
+    invitation.status = status;
+    await invitation.save();
+
+    res.json(invitation);
+  } catch (error) {
+    console.error('Error responding to invitation:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Fetch invitations by user ID
+router.get('/invitations/user/:userId', authenticateToken, async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const invitations = await Invitation.find({ userId, status: 'pending' }).populate('groupId', 'groupName');
+    res.status(200).json(invitations);
+  } catch (error) {
+    console.error('Error fetching invitations:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Remove a member from a group
 router.delete('/:groupId/members/:userId', authenticateToken, async (req, res) => {
-  try {
-    const { groupId, userId } = req.params;
+  const { groupId, userId } = req.params;
+  console.log(`Request to remove user with ID: ${userId} from group ID: ${groupId}`);
 
+  try {
     const group = await Group.findById(groupId);
     if (!group) {
+      console.log('Group not found');
       return res.status(404).json({ error: 'Group not found' });
     }
 
     const memberIndex = group.members.indexOf(userId);
     if (memberIndex === -1) {
+      console.log('User is not a member of the group');
       return res.status(400).json({ error: 'User is not a member of the group' });
     }
 
     group.members.splice(memberIndex, 1);
     await group.save();
 
+    console.log('User removed successfully');
     res.json(group);
   } catch (error) {
     console.error('Error removing member from group:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Add an administrator to a group
-router.post('/:groupId/administrators', authenticateToken, async (req, res) => {
-  try {
-    const { userId } = req.body;
-
-    const group = await Group.findById(req.params.groupId);
-    if (!group) {
-      return res.status(404).json({ error: 'Group not found' });
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    if (group.administrators.includes(userId)) {
-      return res.status(400).json({ error: 'User is already an administrator of the group' });
-    }
-
-    group.administrators.push(userId);
-    if (!group.members.includes(userId)) {
-      group.members.push(userId);
-    }
-    await group.save();
-
-    res.json(group);
-  } catch (error) {
-    console.error('Error adding administrator to group:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Remove an administrator from a group
-router.delete('/:groupId/administrators/:userId', authenticateToken, async (req, res) => {
-  try {
-    const { groupId, userId } = req.params;
-
-    const group = await Group.findById(groupId);
-    if (!group) {
-      return res.status(404).json({ error: 'Group not found' });
-    }
-
-    const adminIndex = group.administrators.indexOf(userId);
-    if (adminIndex === -1) {
-      return res.status(400).json({ error: 'User is not an administrator of the group' });
-    }
-
-    group.administrators.splice(adminIndex, 1);
-    await group.save();
-
-    res.json(group);
-  } catch (error) {
-    console.error('Error removing administrator from group:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
