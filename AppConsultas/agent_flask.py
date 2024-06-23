@@ -2,22 +2,21 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient, errors
 import os
-from bson import ObjectId  # Import ObjectId from bson
+from bson import ObjectId
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import create_sql_agent
 from langchain_openai import ChatOpenAI
 import datetime
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS
+CORS(app)
 
 # MongoDB Configuration
-mongo_client = MongoClient("mongodb+srv://benjaschindler2:OEFadkY0VDagp5ci@myapp.dcvh37v.mongodb.net/")  # mongodb://localhost:27017 or mongodb://mongodb:27017/MyApp
+mongo_client = MongoClient("mongodb+srv://benjaschindler2:OEFadkY0VDagp5ci@myapp.dcvh37v.mongodb.net/")
 db = mongo_client["MyApp"]
 chats_collection = db["chats"]
 
-# Define the absolute path to the uploads folder
-UPLOAD_FOLDER = '../backend/uploads'
+UPLOAD_FOLDER = '/app/uploads'  # Ruta dentro del contenedor '/app/uploads' o '../backend/uploads'
 
 def save_message_to_db(file_id, user_id, sender, text):
     try:
@@ -32,7 +31,6 @@ def save_message_to_db(file_id, user_id, sender, text):
     except errors.ConnectionFailure:
         return {"error": "Failed to connect to MongoDB"}
 
-# Convert MongoDB documents to JSON serializable format
 def serialize_chat(chat):
     chat['_id'] = str(chat['_id'])
     return chat
@@ -53,21 +51,16 @@ def ask():
             app.logger.error('Database file path is required')
             return jsonify({'error': 'Database file path is required'}), 400
 
-        # Construct the full path to the database file
         full_db_file_path = os.path.join(UPLOAD_FOLDER, os.path.basename(db_file_path))
         app.logger.info(f"Database file path: {full_db_file_path}")
 
-        print(full_db_file_path)
-
         answer = process_question(question, full_db_file_path, result_option)
 
-        # Save question to MongoDB
         response = save_message_to_db(data.get('fileId'), data.get('userId'), data.get('sender', 'user'), question)
         if 'error' in response:
             app.logger.error('Error saving question to MongoDB')
             return jsonify(response), 500
 
-        # Save answer to MongoDB
         response = save_message_to_db(data.get('fileId'), data.get('userId'), 'bot', answer)
         if 'error' in response:
             app.logger.error('Error saving answer to MongoDB')
@@ -81,7 +74,6 @@ def ask():
 
 def process_question(question, db_file_path, result_option):
     try:
-        # Logic from agent.py
         APIKEY = os.getenv('OPENAI_API_KEY')
 
         if not APIKEY:
@@ -97,7 +89,7 @@ def process_question(question, db_file_path, result_option):
         table_names = db.get_usable_table_names()
         top_k = 1000
 
-        llm = ChatOpenAI(model="gpt-4o", temperature=0)
+        llm = ChatOpenAI(model="gpt-4", temperature=0)
 
         system = f"""Eres un agente diseñado para interactuar con una base de datos SQL.
         Dada una pregunta de entrada, crea una consulta {dialect} sintácticamente correcta para ejecutar, luego revisa los resultados de la consulta y devuelve la respuesta.

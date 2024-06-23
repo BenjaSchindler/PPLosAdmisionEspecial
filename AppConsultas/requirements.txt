@@ -1,7 +1,7 @@
-Flask
-Flask-CORS
-pymongo
 langchain
 langchain-core
 langchain-community
 langchain-openai
+Flask
+Flask-Cors
+pymongo
