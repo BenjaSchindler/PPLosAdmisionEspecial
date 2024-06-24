@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaTimes, FaUsersCog } from 'react-icons/fa';
 import { useUser } from '../components/UserContext';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface Group {
   _id: string;
@@ -21,6 +23,7 @@ interface Invitation {
 }
 
 const UserHome: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useUser();
   const [groups, setGroups] = useState<Group[]>([]);
   const [files, setFiles] = useState<FileData[]>([]);
@@ -31,6 +34,8 @@ const UserHome: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [newAdminEmail, setNewAdminEmail] = useState('');
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -187,7 +192,8 @@ const UserHome: React.FC = () => {
     }
   };
 
-  const handleAdminButtonClick = (group: Group) => {
+  const handleAdminButtonClick = (event: React.MouseEvent, group: Group) => {
+    event.stopPropagation();
     setSelectedGroup(group);
     setShowModal(true);
   };
@@ -260,24 +266,23 @@ const UserHome: React.FC = () => {
 
   const handleDeleteUser = async (userId: string) => {
     if (!selectedGroup) return;
-  
+
     try {
       const token = localStorage.getItem('token');
       const groupId = selectedGroup._id;
       console.log(`Deleting user with ID: ${userId} from group ID: ${groupId}`);
       const url = `http://localhost:8080/api/groups/${groupId}/members/${userId}`;
       console.log(`Request URL: ${url}`);
-  
+
       await axios.delete(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       await refreshSelectedGroup(groupId);
     } catch (error) {
       console.error('Error deleting user:', error);
     }
   };
-  
 
   const handleRespondToInvitation = async (invitationId: string, status: string) => {
     try {
@@ -314,32 +319,40 @@ const UserHome: React.FC = () => {
     }
   };
 
+  const handleGroupClick = (groupId: string) => {
+    navigate(`/blitz/${groupId}/null`);
+  };
+
+  const handleFileClick = (fileId: string) => {
+    navigate(`/blitz/null/${fileId}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white px-4 py-8">
       <div className="max-w-4xl mx-auto mt-16">
-        <h1 className="text-4xl font-bold mb-8 text-center font-orbitron">Welcome to Your Dashboard</h1>
+        <h1 className="text-4xl font-bold mb-8 text-center font-orbitron">{t('userHome.welcome')}</h1>
 
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 font-orbitron">Create a New Group</h2>
+          <h2 className="text-2xl font-bold mb-4 font-orbitron">{t('userHome.createGroup')}</h2>
           <div className="flex">
             <input
               type="text"
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
-              placeholder="Enter group name"
+              placeholder={t('userHome.enterGroupName')}
               className="border border-gray-600 bg-gray-800 rounded-l-md px-4 py-2 w-full text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
             />
             <button
               onClick={handleCreateGroup}
               className="bg-blue-600 hover:bg-blue-700 rounded-r-md px-6 py-2 text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
             >
-              Create
+              {t('userHome.create')}
             </button>
           </div>
         </div>
 
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 font-orbitron">Upload a SQL File</h2>
+          <h2 className="text-2xl font-bold mb-4 font-orbitron">{t('userHome.uploadSQL')}</h2>
           <div className="flex">
             <input
               id="file-upload"
@@ -352,25 +365,31 @@ const UserHome: React.FC = () => {
             onClick={handleFileUpload}
             className="mt-2 bg-blue-600 hover:bg-blue-700 rounded-md px-6 py-2 text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
           >
-            Upload
+            {t('userHome.upload')}
           </button>
         </div>
 
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 font-orbitron">Your Groups</h2>
+          <h2 className="text-2xl font-bold mb-4 font-orbitron">{t('userHome.yourGroups')}</h2>
           {groups.length === 0 ? (
-            <p className="text-gray-400 font-orbitron">You have no groups.</p>
+            <p className="text-gray-400 font-orbitron">{t('userHome.noGroups')}</p>
           ) : (
             groups.map((group) => (
-              <div key={group._id} className="border border-gray-600 bg-gray-800 rounded-md px-4 py-2 mb-4">
+              <div
+                key={group._id}
+                className="border border-gray-600 bg-gray-800 rounded-md px-4 py-2 mb-4 cursor-pointer"
+                onClick={() => handleGroupClick(group._id)}
+              >
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-bold font-orbitron">{group.groupName}</h3>
-                  <button
-                    onClick={() => handleAdminButtonClick(group)}
-                    className="bg-yellow-600 hover:bg-yellow-700 rounded-md px-2 py-1 text-white font-bold flex items-center font-orbitron"
-                  >
-                    <FaUsersCog className="mr-2" /> Admin
-                  </button>
+                  {group.administrators.some(admin => admin._id === user?._id) && (
+                    <button
+                      onClick={(e) => handleAdminButtonClick(e, group)}
+                      className="bg-yellow-600 hover:bg-yellow-700 rounded-md px-2 py-1 text-white font-bold flex items-center font-orbitron"
+                    >
+                      <FaUsersCog className="mr-2" /> {t('userHome.admin')}
+                    </button>
+                  )}
                 </div>
               </div>
             ))
@@ -378,12 +397,16 @@ const UserHome: React.FC = () => {
         </div>
 
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 font-orbitron">Your Files</h2>
+          <h2 className="text-2xl font-bold mb-4 font-orbitron">{t('userHome.yourFiles')}</h2>
           {files.length === 0 ? (
-            <p className="text-gray-400 font-orbitron">You have no uploaded files.</p>
+            <p className="text-gray-400 font-orbitron">{t('userHome.noFiles')}</p>
           ) : (
             files.map((file) => (
-              <div key={file._id} className="border border-gray-600 bg-gray-800 rounded-md px-4 py-2 mb-4 font-orbitron">
+              <div
+                key={file._id}
+                className="border border-gray-600 bg-gray-800 rounded-md px-4 py-2 mb-4 cursor-pointer font-orbitron"
+                onClick={() => handleFileClick(file._id)}
+              >
                 {file.filename}
               </div>
             ))
@@ -391,24 +414,24 @@ const UserHome: React.FC = () => {
         </div>
 
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 font-orbitron">Invitations</h2>
+          <h2 className="text-2xl font-bold mb-4 font-orbitron">{t('userHome.invitations')}</h2>
           {invitations.length === 0 ? (
-            <p className="text-gray-400 font-orbitron">You have no invitations.</p>
+            <p className="text-gray-400 font-orbitron">{t('userHome.noInvitations')}</p>
           ) : (
             invitations.map((invitation) => (
               <div key={invitation._id} className="bg-gray-800 p-4 rounded-md mb-4 shadow-lg">
-                <p className="text-white mb-2">You have been invited to join the group: {invitation.groupId.groupName}</p>
+                <p className="text-white mb-2">{t('userHome.invitationText', { groupName: invitation.groupId.groupName })}</p>
                 <button
                   onClick={() => handleRespondToInvitation(invitation._id, 'accepted')}
                   className="bg-green-600 hover:bg-green-700 rounded-md px-4 py-2 text-white font-bold mr-2"
                 >
-                  Accept
+                  {t('userHome.accept')}
                 </button>
                 <button
                   onClick={() => handleRespondToInvitation(invitation._id, 'rejected')}
                   className="bg-red-600 hover:bg-red-700 rounded-md px-4 py-2 text-white font-bold"
                 >
-                  Reject
+                  {t('userHome.reject')}
                 </button>
               </div>
             ))
@@ -418,47 +441,47 @@ const UserHome: React.FC = () => {
         {showModal && selectedGroup && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-gray-800 rounded-md shadow-lg p-8 w-full max-w-md">
-              <h3 className="text-2xl font-bold mb-4 text-center font-orbitron">{selectedGroup.groupName} - Admin Panel</h3>
+              <h3 className="text-2xl font-bold mb-4 text-center font-orbitron">{t('userHome.adminPanel', { groupName: selectedGroup.groupName })}</h3>
               <div className="mb-4">
-                <h4 className="text-lg font-bold mb-2 font-orbitron">Add Member</h4>
+                <h4 className="text-lg font-bold mb-2 font-orbitron">{t('userHome.addMember')}</h4>
                 <div className="flex">
                   <input
                     type="email"
                     value={newMemberEmail}
                     onChange={(e) => setNewMemberEmail(e.target.value)}
-                    placeholder="Enter member's email"
+                    placeholder={t('userHome.enterMemberEmail')}
                     className="border border-gray-600 bg-gray-700 rounded-l-md px-4 py-2 w-full text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
                   />
                   <button
                     onClick={handleAddMember}
                     className="bg-green-600 hover:bg-green-700 rounded-r-md px-6 py-2 text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
                   >
-                    Invite
+                    {t('userHome.invite')}
                   </button>
                 </div>
               </div>
 
               <div className="mb-4">
-                <h4 className="text-lg font-bold mb-2 font-orbitron">Add Admin</h4>
+                <h4 className="text-lg font-bold mb-2 font-orbitron">{t('userHome.addAdmin')}</h4>
                 <div className="flex">
                   <input
                     type="email"
                     value={newAdminEmail}
                     onChange={(e) => setNewAdminEmail(e.target.value)}
-                    placeholder="Enter admin's email"
+                    placeholder={t('userHome.enterAdminEmail')}
                     className="border border-gray-600 bg-gray-700 rounded-l-md px-4 py-2 w-full text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
                   />
                   <button
                     onClick={handleAddAdmin}
                     className="bg-yellow-600 hover:bg-yellow-700 rounded-r-md px-6 py-2 text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
                   >
-                    Add
+                    {t('userHome.add')}
                   </button>
                 </div>
               </div>
 
               <div className="mb-4">
-                <h4 className="text-lg font-bold mb-2 font-orbitron">Members</h4>
+                <h4 className="text-lg font-bold mb-2 font-orbitron">{t('userHome.members')}</h4>
                 <ul>
                   {selectedGroup.members.map((member) => (
                     <li key={member._id} className="flex justify-between items-center mb-2 border border-gray-600 bg-gray-700 rounded-md px-4 py-2">
@@ -478,7 +501,7 @@ const UserHome: React.FC = () => {
                 onClick={() => setShowModal(false)}
                 className="mt-4 bg-red-600 hover:bg-red-700 rounded-md px-4 py-2 text-white font-bold w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                Close
+                {t('userHome.close')}
               </button>
             </div>
           </div>

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { useUser } from '../components/UserContext';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 interface Group {
   _id: string;
@@ -25,6 +26,8 @@ const Blitz: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [showGroups, setShowGroups] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const { groupId, fileId } = useParams<{ groupId: string, fileId: string }>();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -103,6 +106,30 @@ const Blitz: React.FC = () => {
     fetchGroups();
     fetchFiles();
   }, [user]);
+
+  useEffect(() => {
+    const fetchGroupFiles = async (groupId: string) => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:8080/api/files/group/${groupId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setGroupFiles(response.data);
+      } catch (error) {
+        console.error('Error fetching group files:', error);
+      }
+    };
+
+    if (groupId) {
+      fetchGroupFiles(groupId);
+    }
+
+    if (fileId) {
+      setSelectedFile({ _id: fileId, filename: '' });
+    }
+  }, [groupId, fileId]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
