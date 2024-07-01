@@ -28,3 +28,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 node_modules
+
+# Ignore all blitzwebapp-f995b97db7eb.json files
+blitzwebapp-f995b97db7eb.json
+**/blitzwebapp-f995b97db7eb.json
