@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "blitzwebapp",
+  "private_key_id": "f995b97db7ebd76afb2c36910e5038ea807d494a",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCyyQqyxXRH6HoA\ndd7GGC42cPPZcIYJB3890lmQJabblmDCV1+YCDjcjH+WKq03Vuu3JW+Xm9uk15ux\n9vTqGnfXwJJqMRLpZRXOxbB3Dq5a44a7n+c1tSkjKivjJzZPSnB9Mm7oRa/PJ0G8\n9Rw/y1e8TtKVBtDzz04v0/kvsKFYvv8+smifnyZ5FF2IBjpLxfQRAoKxLmL2l7Im\npYu/1GqgiCNC1A0gcCZfUsDY6/cou/4iFJB6+ZAFBVkHnhzop2k97y6MbM5w6TwS\nd5j9cLUyuSG+5Ltm+FHxivy/KXijiXKtqaYJ7MaCEJpglmir/Nfbg3OHXn35BT7l\n9YotQ+4LAgMBAAECggEAGXitDoU1KN2FLDWe1IgzZUw4YZ03a2fnB+7FFdVXbWeC\nR43dL7LULw/RSZqw7PZ0RLaPrIDnDRgutW8iu4uj0Vg9Q+XT9O6S6c+ecYfk7UwH\nMQn6DdvOjZT/hbBbe3Z2ik+6H1t2TcQhCIO/T5Nv34M3W0YKVQIO+J9xnArFIfhu\nmqHFKhjkwjeFEul+3/zROXMM9K8p3c6yREupmlooGYtpDSSUohWfB++1rf88cJuw\n6a3XRcXM7Jh2WvuZeGJofpIrxLS0A9r2NAC7LoExC9bx+a91LzGqu58FQGgp0Cbl\n7Um/yKOs5QmeQPCpNev3sCuctHU+IHGN5ZgU2t0/MQKBgQD3I8UrklXYvVTcHB7V\nEspZxwoJZtWfIP/HDJ6i+aWEmrippssLf8WH1BzO+S5BEY6R9KVODtywKRRHmxhr\ngPtDCQBRsBwSt1Q6tlJ8qFK2lXNbBEO5XXCLgJIY+d5zwG2EyvukueEfCn9XUqSn\nRUEYisfRvOq8lh29tjIJv/SyWQKBgQC5MeuESXeBr+Vcj2TyhUuFD20SEdXbeCNc\n/tSZs2iZwStyBut7yHhb/EnxY3VfBBBKY3taHzQwGaYG4h5QwfZtaU9rPp9nEiRm\nGAp7oVsYAJuETkoR1uTORl8pX2yun0IJrphCxpZmqMSwksIudA21tyFT+ikbrogG\nyhlcpfOvAwKBgFBg9ujD8F3MvkPUdYaxVNS8Mpx6MLJPpkDT7uhsr5OgSr0KvXEg\n/lq99xyt2IhbMHZyDi2EEezNf4YGgHu+eHoF/G+VCpxfuepakBtxF23Az8LjcS9h\nn5APofSzl9En3bbZ2dxqhDh3TpFVFK4+jPxxbqndeq8ZV9Ty4/Vd1DUJAoGANL8d\nH151ZUCeCRDmZZTFf653GFBwIsRC/jeugeBxiGlWYHHMHENq1Hg070WuplNX+HgB\nKBf/GzwS5577l3DHKT53WkpJyGeIanOqeK/qbBmwMazCt/YG0SGF9RiyscG2Y1+R\nCmPZbn/fFZOXLvfq97ijC3ISx0mcgKKLOrIhh9UCgYBGCZYVjOXgqKRp8MJTB45/\nkbPWbtaxF3IR9ni8Zsv3K6D2YtFq3xl1rvrHqMt07bnGzsG1jv22JeFNP8fZqzc4\nnmqEyv51OMBO/T9Kzk69xSE8nGc9ifOsid1R4jGdwic9AWvC++TBAdVvVHEius7W\n3u4wcVQtnxPIWxIte03/WA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "blitz-973@blitzwebapp.iam.gserviceaccount.com",
+  "client_id": "108426126705322321416",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/blitz-973%40blitzwebapp.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

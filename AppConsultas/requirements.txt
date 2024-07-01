@@ -6,3 +6,4 @@ Flask
 Flask-Cors
 pymongo
 google-cloud-storagege
+python-dotenv

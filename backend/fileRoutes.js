@@ -3,6 +3,7 @@ const multer = require('multer');
 const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 const File = require('./fileModel');
+require('dotenv').config();  // Load .env variables
 
 const router = express.Router();
 

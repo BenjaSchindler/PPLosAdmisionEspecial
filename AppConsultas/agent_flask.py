@@ -2,8 +2,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient, errors
 import os
-from bson import ObjectId
 from google.cloud import storage
+import sqlite3
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import create_sql_agent
 from langchain_openai import ChatOpenAI
@@ -17,15 +17,8 @@ mongo_client = MongoClient("mongodb+srv://benjaschindler2:OEFadkY0VDagp5ci@myapp
 db = mongo_client["MyApp"]
 chats_collection = db["chats"]
 
-# GCS Configuration
-GCS_BUCKET_NAME = 'blitzwebapp'
-
-def upload_to_gcs(file_path, destination_blob_name):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(GCS_BUCKET_NAME)
-    blob = bucket.blob(destination_blob_name)
-    blob.upload_from_filename(file_path)
-    return blob.public_url
+UPLOAD_FOLDER = 'downloads'  # Local folder to temporarily store downloaded files
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def save_message_to_db(file_id, user_id, sender, text):
     try:
@@ -44,6 +37,14 @@ def serialize_chat(chat):
     chat['_id'] = str(chat['_id'])
     return chat
 
+def download_file_from_gcs(gcs_uri, local_path):
+    storage_client = storage.Client()
+    bucket_name, blob_name = gcs_uri.replace('gs://', '').split('/', 1)
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+    blob.download_to_filename(local_path)
+    return local_path
+
 @app.route('/api/ask', methods=['POST'])
 def ask():
     try:
@@ -60,10 +61,12 @@ def ask():
             app.logger.error('Database file path is required')
             return jsonify({'error': 'Database file path is required'}), 400
 
-        gcs_file_path = f'gs://{GCS_BUCKET_NAME}/{db_file_path}'
-        app.logger.info(f"Database file path: {gcs_file_path}")
+        gcs_uri = f"gs://blitzwebapp/{db_file_path}"
+        local_db_file_path = os.path.join(UPLOAD_FOLDER, os.path.basename(db_file_path))
+        download_file_from_gcs(gcs_uri, local_db_file_path)
+        app.logger.info(f"Downloaded database file to: {local_db_file_path}")
 
-        answer = process_question(question, gcs_file_path, result_option)
+        answer = process_question(question, local_db_file_path, result_option)
 
         response = save_message_to_db(data.get('fileId'), data.get('userId'), data.get('sender', 'user'), question)
         if 'error' in response:
