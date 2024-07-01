@@ -5,3 +5,4 @@ langchain-openai
 Flask
 Flask-Cors
 pymongo
+google-cloud-storagege
