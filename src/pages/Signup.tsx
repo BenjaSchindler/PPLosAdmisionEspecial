@@ -48,7 +48,7 @@ const SignUp: React.FC = () => {
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
         console.info("User registered successfully", { user });
-        navigate("/");
+        navigate("/UserHome");
       } else {
         setRegistrationError("Error registering user");
       }
@@ -82,7 +82,7 @@ const SignUp: React.FC = () => {
           photoURL: res.data.user.photoURL,
         }));
         console.info("User logged in successfully with Google", { user: res.data.user });
-        navigate("/");
+        navigate("/UserHome");
       } else {
         console.error("Google login failed");
       }

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { FaTimes, FaUsersCog } from 'react-icons/fa';
+import { FaTimes, FaUsersCog, FaPlus } from 'react-icons/fa';
 import { useUser } from '../components/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -30,12 +30,14 @@ const UserHome: React.FC = () => {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [groupName, setGroupName] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [groupFiles, setGroupFiles] = useState<FileData[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [newAdminEmail, setNewAdminEmail] = useState('');
 
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -143,10 +145,11 @@ const UserHome: React.FC = () => {
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
+      handleFileUpload(file);
     }
   };
 
-  const handleFileUpload = async () => {
+  const handleFileUpload = async (file: File) => {
     if (!user?._id) {
       console.error('User ID is not defined');
       return;
@@ -156,13 +159,8 @@ const UserHome: React.FC = () => {
       const token = localStorage.getItem('token');
       const userId = user._id;
 
-      if (!selectedFile) {
-        alert('Please select a file first.');
-        return;
-      }
-
       const formData = new FormData();
-      formData.append('file', selectedFile);
+      formData.append('file', file);
       formData.append('userId', userId);
 
       const response = await axios.post(
@@ -186,7 +184,9 @@ const UserHome: React.FC = () => {
       setFiles(updatedFilesResponse.data);
 
       setSelectedFile(null);
-      (document.getElementById('file-upload') as HTMLInputElement).value = '';
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     } catch (error) {
       console.error('Error uploading file:', error);
     }
@@ -327,10 +327,71 @@ const UserHome: React.FC = () => {
     navigate(`/blitz/null/${fileId}`);
   };
 
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleDeleteFile = async (fileId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+  
+      if (!token) {
+        alert('User not authenticated.');
+        return;
+      }
+  
+      const response = await axios.delete(`http://localhost:8080/api/files/${fileId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      if (response.status === 200) {
+        console.log(`File with ID: ${fileId} deleted successfully`);
+        // Refresh the file list
+        setFiles(files.filter(file => file._id !== fileId));
+      } else {
+        console.error(`Failed to delete file with ID: ${fileId}`);
+      }
+    } catch (error) {
+      console.error(`Error deleting file with ID: ${fileId}`, error);
+    }
+  };
+  
+
+  const handleDeleteGroupFile = async (groupId: string, fileId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:8080/api/files/group/${groupId}/${fileId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Refresh the group files list
+      const updatedGroupFilesResponse = await axios.get(`http://localhost:8080/api/files/group/${groupId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setGroupFiles(updatedGroupFilesResponse.data);
+    } catch (error) {
+      console.error('Error deleting group file:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white px-4 py-8">
       <div className="max-w-4xl mx-auto mt-16">
-        <h1 className="text-4xl font-bold mb-8 text-center font-orbitron">{t('userHome.welcome')}</h1>
+        <h1 className="text-4xl font-bold mb-8 text-center font-orbitron">
+          {t('userHome.welcome')}{" "}
+          <span
+            className="text-blue-500 hover:text-blue-700 cursor-pointer"
+            onClick={() => navigate('/Profile')}
+          >
+            {user?.username ? `${user.username}` : ''}
+          </span>
+        </h1>
 
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4 font-orbitron">{t('userHome.createGroup')}</h2>
@@ -352,21 +413,42 @@ const UserHome: React.FC = () => {
         </div>
 
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 font-orbitron">{t('userHome.uploadSQL')}</h2>
-          <div className="flex">
-            <input
-              id="file-upload"
-              type="file"
-              onChange={handleFileChange}
-              className="border border-gray-600 bg-gray-800 rounded-l-md px-4 py-2 w-full text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
-            />
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center">
+              <h2 className="text-2xl font-bold font-orbitron mr-4">{t('userHome.yourFiles')}</h2>
+              <button
+                onClick={triggerFileInput}
+                className="bg-blue-600 hover:bg-blue-700 rounded-md px-4 py-2 text-white font-bold flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
+              >
+                {t('userHome.addFile')}
+              </button>
+              <input
+                id="file-upload"
+                type="file"
+                onChange={handleFileChange}
+                className="hidden"
+                ref={fileInputRef}
+              />
+            </div>
           </div>
-          <button
-            onClick={handleFileUpload}
-            className="mt-2 bg-blue-600 hover:bg-blue-700 rounded-md px-6 py-2 text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 font-orbitron"
-          >
-            {t('userHome.upload')}
-          </button>
+          {files.length === 0 ? (
+            <p className="text-gray-400 font-orbitron">{t('userHome.noFiles')}</p>
+          ) : (
+            files.map((file) => (
+              <div
+                key={file._id}
+                className="border border-gray-600 bg-gray-800 rounded-md px-4 py-2 mb-4 flex justify-between items-center cursor-pointer font-orbitron"
+              >
+                <span onClick={() => handleFileClick(file._id)}>{file.filename}</span>
+                <button
+                  onClick={() => handleDeleteFile(file._id)}
+                  className="bg-grey-600 hover:bg-red-500 rounded-md px-2 py-1 text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  x
+                </button>
+              </div>
+            ))
+          )}
         </div>
 
         <div className="mb-8">
@@ -391,23 +473,6 @@ const UserHome: React.FC = () => {
                     </button>
                   )}
                 </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 font-orbitron">{t('userHome.yourFiles')}</h2>
-          {files.length === 0 ? (
-            <p className="text-gray-400 font-orbitron">{t('userHome.noFiles')}</p>
-          ) : (
-            files.map((file) => (
-              <div
-                key={file._id}
-                className="border border-gray-600 bg-gray-800 rounded-md px-4 py-2 mb-4 cursor-pointer font-orbitron"
-                onClick={() => handleFileClick(file._id)}
-              >
-                {file.filename}
               </div>
             ))
           )}

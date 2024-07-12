@@ -3,7 +3,8 @@ const multer = require('multer');
 const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 const File = require('./fileModel');
-require('dotenv').config();  // Load .env variables
+const { authenticateToken } = require('./authMiddleware');
+require('dotenv').config();
 
 const router = express.Router();
 
@@ -30,6 +31,15 @@ const uploadToGCS = async (fileBuffer, fileName) => {
   });
 };
 
+const deleteFromGCS = async (fileName) => {
+  try {
+    await storage.bucket(bucketName).file(fileName).delete();
+    console.log(`Successfully deleted file from GCS: ${fileName}`);
+  } catch (error) {
+    console.error(`Failed to delete file from GCS: ${fileName}`, error);
+  }
+};
+
 // Upload a file
 router.post('/upload', upload.single('file'), async (req, res) => {
   const { userId, groupId } = req.body;
@@ -54,6 +64,50 @@ router.post('/upload', upload.single('file'), async (req, res) => {
   } catch (error) {
     console.error('Error uploading file:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// For deleting a user's file
+router.delete('/:fileId', authenticateToken, async (req, res) => {
+  const { fileId } = req.params;
+
+  try {
+    const file = await File.findById(fileId);
+    if (file) {
+      await deleteFromGCS(file.filename);
+      await File.findByIdAndDelete(fileId);
+      res.status(200).json({ message: 'File deleted successfully' });
+    } else {
+      res.status(404).json({ error: 'File not found' });
+    }
+  } catch (error) {
+    console.error(`Failed to delete file with ID: ${fileId}`, error);
+    res.status(500).json({ error: 'Failed to delete file' });
+  }
+});
+
+// For deleting a group file (with group admin authorization)
+router.delete('/group/:groupId/:fileId', authenticateToken, async (req, res) => {
+  const { groupId, fileId } = req.params;
+  const userId = req.user.userId;
+
+  try {
+    const group = await Group.findById(groupId);
+    if (group.administrators.includes(userId)) {
+      const file = await File.findById(fileId);
+      if (file) {
+        await deleteFromGCS(file.filename);
+        await File.findByIdAndDelete(fileId);
+        res.status(200).json({ message: 'File deleted successfully' });
+      } else {
+        res.status(404).json({ error: 'File not found' });
+      }
+    } else {
+      res.status(403).json({ error: 'Unauthorized to delete this file' });
+    }
+  } catch (error) {
+    console.error(`Failed to delete file with ID: ${fileId}`, error);
+    res.status(500).json({ error: 'Failed to delete file' });
   }
 });
 

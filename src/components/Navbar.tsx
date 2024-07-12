@@ -83,12 +83,20 @@ const Navbar: React.FC = () => {
     return user?.username?.charAt(0).toUpperCase() || "";
   };
 
+  const handleHomeClick = () => {
+    if (isLoggedIn) {
+      navigate("/UserHome");
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <nav className="bg-slate-950 shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center">
+            <div className="flex items-center cursor-pointer" onClick={handleHomeClick}>
               <img
                 src="https://i.imgur.com/3qH4MPc.png"
                 alt="Blitz Scaling"
@@ -100,7 +108,7 @@ const Navbar: React.FC = () => {
               >
                 Blitz
               </span>
-            </Link>
+            </div>
           </div>
           <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6">
@@ -224,7 +232,10 @@ const Navbar: React.FC = () => {
                 ? "text-white bg-gray-900"
                 : "text-gray-300 hover:text-white"
             } block px-3 py-2 rounded-md text-base font-medium`}
-            onClick={closeMenu}
+            onClick={() => {
+              handleHomeClick();
+              closeMenu();
+            }}
           >
             Home
           </Link>
@@ -298,4 +309,5 @@ const Navbar: React.FC = () => {
     </nav>
   );
 };
+
 export default Navbar;

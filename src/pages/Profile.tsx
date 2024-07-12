@@ -17,10 +17,11 @@ const Profile: React.FC = () => {
       formData.append('photo', file);
 
       try {
+        const token = localStorage.getItem('token');
         const response = await axios.post('http://localhost:8080/uploadProfilePhoto', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: localStorage.getItem('token'),
+            Authorization: `Bearer ${token}`,
           },
         });
 

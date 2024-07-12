@@ -31,6 +31,7 @@
     "userHome.noGroups": "No tienes grupos.",
     "userHome.admin": "Admin",
     "userHome.yourFiles": "Tus Archivos",
+    "userHome.addFile":"Añadir Archivo +",
     "userHome.noFiles": "No tienes archivos subidos.",
     "userHome.invitations": "Invitaciones",
     "userHome.noInvitations": "No tienes invitaciones.",

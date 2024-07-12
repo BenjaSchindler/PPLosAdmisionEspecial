@@ -26,7 +26,7 @@ const Blitz: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [showGroups, setShowGroups] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
+  const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
   const { groupId, fileId } = useParams<{ groupId: string, fileId: string }>();
 
   const scrollToBottom = () => {
@@ -238,6 +238,7 @@ const Blitz: React.FC = () => {
     setSelectedGroup(group);
     setSelectedFile(null);
     setMessages([]);
+
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`http://localhost:8080/api/files/group/${group._id}`, {
@@ -246,8 +247,16 @@ const Blitz: React.FC = () => {
         },
       });
       setGroupFiles(response.data);
+
+      // Check if the user is an admin of the selected group
+      const adminResponse = await axios.get(`http://localhost:8080/api/groups/${group._id}/isAdmin`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setIsAdmin(adminResponse.data.isAdmin ?? false);
     } catch (error) {
-      console.error('Error fetching group files:', error);
+      console.error('Error fetching group files or checking admin status:', error);
     }
   };
 
@@ -262,7 +271,7 @@ const Blitz: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen" style={{ paddingTop: '60px', backgroundColor: '#1a202c' }}>
+    <div className="flex h-screen" style={{ paddingTop: '60px', backgroundImage: 'url(https://i.imgur.com/ZNV81El.jpeg)', backgroundSize: 'cover' }}>
       <div className="w-1/4 bg-gray-900 text-white p-4 flex flex-col rounded-lg shadow-md">
         <h2 className="text-xl mb-4 cursor-pointer flex justify-between items-center" onClick={toggleGroupView}>
           {selectedGroup ? selectedGroup.groupName : 'My Files'}
@@ -315,10 +324,19 @@ const Blitz: React.FC = () => {
             ))
           )}
         </ul>
-        <label htmlFor="file-upload" className="mt-4 p-2 bg-blue-600 text-white rounded-md cursor-pointer flex items-center justify-center hover:bg-blue-700">
+        <label 
+          htmlFor="file-upload" 
+          className={`mt-4 p-2 rounded-md flex items-center justify-center ${selectedGroup && isAdmin === false ? 'bg-gray-600 cursor-not-allowed' : 'bg-blue-600 cursor-pointer hover:bg-blue-700'}`}
+        >
           Add a file +
         </label>
-        <input type="file" id="file-upload" onChange={handleFileChange} className="hidden" />
+        <input 
+          type="file" 
+          id="file-upload" 
+          onChange={handleFileChange} 
+          className="hidden" 
+          disabled={selectedGroup && isAdmin === false || undefined}
+        />
       </div>
       <div className="flex-1 flex flex-col">
         <div className="flex-1 overflow-y-auto p-4 pb-20">
@@ -345,14 +363,14 @@ const Blitz: React.FC = () => {
             <div ref={messagesEndRef} />
           </div>
         </div>
-        <div className="flex-shrink-0 p-4 bg-gray-800">
+        <div className="flex-shrink-0 p-4 bg-transparent">
           <form onSubmit={handleSubmit} className="flex space-x-0 max-w-2xl mx-auto">
             <input
               type="text"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="Enter your question"
-              className="flex-1 rounded-l-lg border border-gray-300 p-2 focus:outline-none focus:ring focus:border-blue-300"
+              className="flex-1 rounded-l-lg border border-gray-700 p-2 focus:outline-none focus:ring focus:border-blue-300 bg-gray-800 text-white"
               style={{ borderRight: 'none' }}
             />
             <button

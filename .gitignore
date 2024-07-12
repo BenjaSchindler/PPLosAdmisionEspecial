@@ -29,6 +29,6 @@ yarn-debug.log*
 yarn-error.log*
 node_modules
 
-# Ignore all blitzwebapp-f995b97db7eb.json files
-blitzwebapp-f995b97db7eb.json
-**/blitzwebapp-f995b97db7eb.json
+# Ignore all blitzwebapp-1ad5beef4a7e.json files
+blitzwebapp-1ad5beef4a7e.json
+**/blitzwebapp-1ad5beef4a7e.json

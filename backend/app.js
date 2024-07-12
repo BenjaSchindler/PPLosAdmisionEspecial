@@ -7,15 +7,13 @@ const { OAuth2Client } = require('google-auth-library');
 const multer = require('multer');
 const path = require('path');
 require('dotenv').config();
+const { Storage } = require('@google-cloud/storage');
 const fileRoutes = require('./fileRoutes');
 const groupRoutes = require('./groupRoutes');
 const chatRoutes = require('./chatRoutes');
 const invitationRoutes = require('./invitationRoutes');
 const { authenticateToken } = require('./authMiddleware');
 const connectDB = require('./db');
-const File = require('./fileModel');
-const Group = require('./groupModel');
-const { createProxyMiddleware } = require('http-proxy-middleware');
 
 // Create an instance of the Express application
 const app = express();
@@ -42,6 +40,46 @@ connectDB();
 // Google OAuth client setup
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClient = new OAuth2Client(googleClientId);
+
+// Initialize Google Cloud Storage
+const storage = new Storage();
+const bucketName = 'blitzwebapp'; // Replace with your bucket name
+
+// Configure multer for file upload
+const storageMulter = multer.memoryStorage();
+const upload = multer({ storage: storageMulter });
+
+// Function to upload a file to GCS
+const uploadImageToGCS = (file, userId) => {
+  return new Promise((resolve, reject) => {
+    const blob = storage.bucket(bucketName).file(`${userId}-${Date.now()}-${file.originalname}`);
+    const blobStream = blob.createWriteStream({
+      resumable: false,
+      metadata: {
+        contentType: file.mimetype,
+      },
+    });
+
+    blobStream.on('error', (err) => {
+      reject(err);
+    });
+
+    blobStream.on('finish', async () => {
+      try {
+        const [url] = await blob.getSignedUrl({
+          version: 'v4',
+          action: 'read',
+          expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+        });
+        resolve(url);
+      } catch (err) {
+        reject(err);
+      }
+    });
+
+    blobStream.end(file.buffer);
+  });
+};
 
 // User registration route
 app.post('/Signup', async (req, res) => {
@@ -116,6 +154,7 @@ app.post('/Login', async (req, res) => {
   }
 });
 
+// Function to verify Google token
 async function verifyGoogleToken(token) {
   const ticket = await googleClient.verifyIdToken({
     idToken: token,
@@ -171,40 +210,7 @@ app.post('/googleLogin', async (req, res) => {
   }
 });
 
-// Protected route that requires authentication
-app.get('/protected', authenticateToken, (req, res) => {
-  res.json({ message: 'Protected route accessed successfully', user: req.user });
-});
-
-// Configure multer for file upload
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-
-const fileFilter = (req, file, cb) => {
-  const allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-  if (allowedFileTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type. Only JPG, JPEG, and PNG are allowed.'), false);
-  }
-};
-
-const upload = multer({ storage: storage, fileFilter: fileFilter });
-
-const fs = require('fs');
-const uploadsDir = 'uploads';
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir);
-}
-
-app.use('/uploads', express.static('uploads'));
-
+// Profile photo upload route
 app.post('/uploadProfilePhoto', authenticateToken, upload.single('photo'), async (req, res) => {
   try {
     if (!req.file) {
@@ -212,21 +218,13 @@ app.post('/uploadProfilePhoto', authenticateToken, upload.single('photo'), async
     }
 
     const userId = req.user.userId;
-    const photoURL = `http://localhost:8080/uploads/${req.file.filename}`;
+    const photoURL = await uploadImageToGCS(req.file, userId);
 
     const user = await User.findByIdAndUpdate(
       userId,
-      { photoURL: photoURL },
+      { photoURL },
       { new: true }
     );
-
-    const newFile = new File({
-      filename: req.file.filename,
-      path: req.file.path,
-      uploadedBy: userId,
-    });
-
-    await newFile.save();
 
     res.status(200).json({
       user: {
@@ -240,32 +238,6 @@ app.post('/uploadProfilePhoto', authenticateToken, upload.single('photo'), async
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
-app.post('/uploadGroupFile', authenticateToken, upload.single('file'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-
-    const userId = req.user.userId;
-    const groupId = req.body.groupId;
-
-    const newFile = new File({
-      filename: req.file.filename,
-      path: req.file.path,
-      uploadedBy: userId,
-      groupId: groupId,
-    });
-
-    await newFile.save();
-
-    res.status(201).json({ message: 'File uploaded successfully' });
-  } catch (error) {
-    console.error('Error uploading group file:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
 
 // Add this route in app.js before the final app.listen call
 app.get('/api/user/email/:email', async (req, res) => {
@@ -283,20 +255,15 @@ app.get('/api/user/email/:email', async (req, res) => {
   }
 });
 
-
 // Include file and group routes
 app.use('/api/groups', groupRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/invitations', invitationRoutes);
 
-// Connect to MongoDB
-connectDB();
-
-// Export the app and User model for testing or external use
-module.exports = { app, User };
-
 // Start the server
 app.listen(8080, () => {
   console.log('Server is running on port 8080');
 });
+
+module.exports = { app, User };

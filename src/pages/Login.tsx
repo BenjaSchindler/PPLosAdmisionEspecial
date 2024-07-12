@@ -27,7 +27,7 @@ const Login: React.FC = () => {
         setUser(response.data.user);
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
-        navigate("/");
+        navigate("/UserHome");
       } else {
         setLoginError("Invalid credentials");
       }
@@ -56,7 +56,7 @@ const Login: React.FC = () => {
           })
         );
         // Navigate to home page or dashboard upon successful login
-        navigate("/");
+        navigate("/UserHome");
       } else {
         // Handle login error
         console.error("Google login failed");

@@ -171,4 +171,22 @@ router.delete('/:groupId/members/:userId', authenticateToken, async (req, res) =
   }
 });
 
+// Add this in your groupRoutes.js or equivalent
+router.get('/:groupId/isAdmin', authenticateToken, async (req, res) => {
+  const { groupId } = req.params;
+  const userId = req.user.userId;
+
+  try {
+    const group = await Group.findById(groupId);
+    if (group.administrators.includes(userId)) {
+      return res.json({ isAdmin: true });
+    } else {
+      return res.json({ isAdmin: false });
+    }
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;
